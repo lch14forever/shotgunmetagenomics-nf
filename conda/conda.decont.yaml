@@ -1,0 +1,9 @@
+name: shotgunmetagnomics-decont
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - samtools=1.9
+  - fastp=0.20.0
+  - bwa=0.7.17
