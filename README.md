@@ -4,6 +4,8 @@
 
 This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [original pipeline](https://github.com/lch14forever/shotgun-metagenomics-pipeline) used by [Computational and Systems Biology Group 5 (CSB5)](http://csb5.github.io/) at the [Genome Institute of Singapore (GIS)](https://www.a-star.edu.sg/gis).
 
+[中文文档](README_CN.md)
+
 ## Features
  - The new DSL2 syntax for pipeline modularity
  - Dockerfile for each software
@@ -39,3 +41,7 @@ shotgunmetagenomics-nf/main.nf
 ## Usage cases
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)
  - Chng *et al*. Cartography of opportunistic pathogens and antibiotic resistance genes in a tertiary hospital environment. *BioRxiv* (2019)
+
+## Contact
+
+Chenhao Li: lich@gis.a-star.edu.sg, lichenhao.sg@gmail.com
