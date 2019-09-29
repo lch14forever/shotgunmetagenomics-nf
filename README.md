@@ -30,7 +30,10 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 
 ## Usage
- - TBD
+
+```sh
+shotgunmetagenomics-nf/main.nf
+```
 
 
 ## Usage cases
