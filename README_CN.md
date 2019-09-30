@@ -20,7 +20,7 @@
  - [Samtools](https://github.com/samtools/samtools) (>=1.7): 去宿主DNA
 
 ### 有参宏基因组分析
- - Kraken2: 物种分类分析
+ - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta): 物种分类分析
  - MetaPhlAn2: 物种分类分析
  - SRST2: 抗生素抗药性分析
  - HUMAnN2: 代谢通路分析

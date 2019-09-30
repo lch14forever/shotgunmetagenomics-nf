@@ -25,7 +25,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [Samtools](https://github.com/samtools/samtools) (>=1.7): Host DNA removal
 
 ### Reference based analysis
- - Kraken2: Taxonomic profiling
+ - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta): Taxonomic profiling
  - MetaPhlAn2: Taxonomic profiling
  - SRST2: Resistome profiling
  - HUMAnN2: Pathway analysis
