@@ -1,0 +1,8 @@
+name: shotgunmetagnomics-kraken2
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - kraken2=2.0.8
+  - braken=2.5-1

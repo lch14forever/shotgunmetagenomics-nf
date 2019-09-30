@@ -13,7 +13,8 @@ process DECONT {
     tuple prefix, file(reads1), file(reads2)
 
     output:
-    file("${prefix}*")
+    tuple prefix, file("${prefix}*1.fastq.gz"), file("${prefix}*2.fastq.gz")
+    tuple file("${prefix}.html"), file("${prefix}.json")
 
     script:
     """
