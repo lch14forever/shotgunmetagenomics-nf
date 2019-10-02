@@ -1,4 +1,4 @@
-name: shotgunmetagnomics-decont
+name: shotgunmetagenomics-decont
 channels:
   - defaults
   - bioconda
