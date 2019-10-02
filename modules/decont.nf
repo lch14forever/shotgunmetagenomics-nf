@@ -6,7 +6,7 @@ params.outdir = './'
 process DECONT {
     tag "${prefix}"
     cpus 8
-    publishDir params.outdir, mode: 'copy'
+    publishDir "$params.outdir/decont", mode: 'copy'
 
     input:
     file index_path

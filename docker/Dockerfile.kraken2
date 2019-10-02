@@ -19,6 +19,14 @@ RUN curl -L https://github.com/DerrickWood/kraken2/archive/v${VERSION}.tar.gz > 
     cd kraken2-$VERSION && ./install_kraken2.sh /usr/local/bin/ && \
     cd /tmp && rm -rf kraken2-$VERSION
 
+ENV VERSION=2.5
+RUN curl -L https://github.com/jenniferlu717/Bracken/archive/v${VERSION}.tar.gz > /tmp/bracken-$VERSION.tar.gz && \
+    cd /tmp && tar xvf bracken-${VERSION}.tar.gz && rm bracken-${VERSION}.tar.gz && \
+    cd Bracken-${VERSION} && sh ./install_bracken.sh && \
+    mv bracken-build bracken src /usr/local/bin && \
+    cd /tmp && rm -rf Braken-$VERSION
+RUN apt-get install -y python3
+
 RUN apt-get clean -y && \
     apt-get autoremove -y
 

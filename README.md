@@ -33,10 +33,28 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 ## Usage
 
+Run using attached testing dataset
+
 ```sh
-shotgunmetagenomics-nf/main.nf
+$ shotgunmetagenomics-nf/main.nf
+N E X T F L O W  ~  version 19.09.0-edge
+Launching `./main.nf` [cheesy_volhard] - revision: dc7259a08e
+WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
+executor >  local (8)
+[d4/2492b7] process > DECONT (SRR1950772)  [100%] 2 of 2 ✔
+[3f/d7402d] process > KRAKEN2 (SRR1950772) [100%] 2 of 2 ✔
+[de/a05395] process > BRAKEN (SRR1950772)  [100%] 4 of 4 ✔
+Completed at: 02-Oct-2019 16:21:34
+Duration    : 3m 47s
+CPU hours   : 0.5
+Succeeded   : 8
 ```
 
+For the full help information, use
+
+```
+$ shotgunmetagenomics-nf/main.nf --help
+```
 
 ## Usage cases
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)
