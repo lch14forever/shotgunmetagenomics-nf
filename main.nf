@@ -8,20 +8,9 @@ nextflow.preview.dsl=2
 params.help           = false
 params.read_path      = "${workflow.projectDir}/data"
 
-// parameters outputs
-params.outdir         = './pipeline_output'
-
-// parameters decont
-params.decont_refpath = '/data/nucleotide/'
-params.decont_index   = 'hg19.fa'
-
-// parameters kraken2
-params.kraken2_index  = '/data/minikraken2_v2_8GB_201904_UPDATE/'
-
 // import modules
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
-include './modules/profilers_kraken2' params(outdir: "$params.outdir")
-
+include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
 
 // help message
 def helpMessage() {
