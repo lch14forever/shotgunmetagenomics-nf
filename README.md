@@ -25,7 +25,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [Samtools](https://github.com/samtools/samtools) (>=1.7): Host DNA removal
 
 ### Reference based analysis
- - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta): Taxonomic profiling
+ - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): Taxonomic profiling
  - MetaPhlAn2: Taxonomic profiling
  - SRST2: Resistome profiling
  - HUMAnN2: Pathway analysis
@@ -43,7 +43,7 @@ WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN
 executor >  local (8)
 [d4/2492b7] process > DECONT (SRR1950772)  [100%] 2 of 2 ✔
 [3f/d7402d] process > KRAKEN2 (SRR1950772) [100%] 2 of 2 ✔
-[de/a05395] process > BRAKEN (SRR1950772)  [100%] 4 of 4 ✔
+[de/a05395] process > BRACKEN (SRR1950772) [100%] 4 of 4 ✔
 Completed at: 02-Oct-2019 16:21:34
 Duration    : 3m 47s
 CPU hours   : 0.5

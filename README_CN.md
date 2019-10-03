@@ -20,7 +20,7 @@
  - [Samtools](https://github.com/samtools/samtools) (>=1.7): 去宿主DNA
 
 ### 有参宏基因组分析
- - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta): 物种分类分析
+ - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): 物种分类分析
  - MetaPhlAn2: 物种分类分析
  - SRST2: 抗生素抗药性分析
  - HUMAnN2: 代谢通路分析
@@ -37,7 +37,7 @@ WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN
 executor >  local (8)
 [d4/2492b7] process > DECONT (SRR1950772)  [100%] 2 of 2 ✔
 [3f/d7402d] process > KRAKEN2 (SRR1950772) [100%] 2 of 2 ✔
-[de/a05395] process > BRAKEN (SRR1950772)  [100%] 4 of 4 ✔
+[de/a05395] process > BRACKEN (SRR1950772) [100%] 4 of 4 ✔
 Completed at: 02-Oct-2019 16:21:34
 Duration    : 3m 47s
 CPU hours   : 0.5

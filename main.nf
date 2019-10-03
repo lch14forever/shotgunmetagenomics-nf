@@ -58,5 +58,5 @@ ch_kraken_idx = file(params.kraken2_index)
 workflow{
     DECONT(ch_bwa_idx, ch_reads)
     KRAKEN2(ch_kraken_idx, DECONT.out[0])
-    BRAKEN(ch_kraken_idx, KRAKEN2.out[0], Channel.from('s', 'g'))
+    BRACKEN(ch_kraken_idx, KRAKEN2.out[0], Channel.from('s', 'g'))
 }

@@ -36,7 +36,7 @@ process KRAKEN2 {
     """
 }
 
-process BRAKEN {
+process BRACKEN {
     tag "${prefix}"
     cpus 1
     publishDir "${params.outdir}/braken_out", mode: 'copy'
