@@ -3,19 +3,31 @@
 // DSL 2 syntax
 nextflow.preview.dsl=2
 
-
-// parameters inputs
-params.help           = false
-params.read_path      = "${workflow.projectDir}/data"
-
-// import modules
-include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
-include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
-
 // help message
+params.help = false
 def helpMessage() {
     log.info"""
-    =========================================================================================================================================
+    ###############################################################################
+
+          +++++++++++++++++'++++
+          ++++++++++++++++''+'''
+          ++++++++++++++'''''''+
+          ++++++++++++++''+'++++
+          ++++++++++++++''''++++
+          +++++++++++++'++''++++
+          ++++++++++++++++++++++       ++++++++:,   +++   ++++++++
+          +++++++++++++, +++++++     +++.  .'+++;  +++  :+++   '++
+          ++++++ ``'+`  ++++++++   +++'        ';  +++  +++      +
+          ++++`   +++  +++++++++  +++              +++  +++:
+          ++,  ,+++`  ++++++++++  ++;              +++    ++++
+          +, ;+++  + .++++++++++  +++     .++++++  +++       ++++
+          + `++;  ++  +++++;;+++  +++         +++  +++          '++,
+          + :;   +++, ;++; ;++++  ;++;        +++  +++           +++
+          +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
+          ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
+
+    ###################### CSB5 Shotgun Metagenomics Pipeline ####################
+
     Usage:
     The typical command for running the pipeline is as follows:
       nextflow run ${workflow.projectDir}/main.nf  --read_path PATH_TO_READS
@@ -28,7 +40,7 @@ def helpMessage() {
       --decont_index            BWA index prefix for the host
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
-    =========================================================================================================================================
+
     """.stripIndent()
 }
 if (params.help){
@@ -36,10 +48,16 @@ if (params.help){
     exit 0
 }
 
+// import modules
+include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
+include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
+
+// TODO: assertion on file existence
+
 // data channels
 ch_bwa_idx = file(params.decont_refpath)
 ch_reads = Channel
-    .fromFilePairs(params.read_path + '/**{1,2}.f*q*', flat: true)
+    .fromFilePairs(params.read_path + '/**{1,2}.f*q*', flat: true, checkIfExists: true)
 
 ch_kraken_idx = file(params.kraken2_index)
 

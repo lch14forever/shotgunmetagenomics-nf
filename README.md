@@ -6,9 +6,27 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 [中文文档](README_CN.md)
 
+## Roadmap
+ - [x] Add decontamination
+   - [x] Docker
+   - [x] Conda
+ - [x] Add kraken2 and bracken
+   - [x] Docker
+   - [x] Conda
+ - [ ] Add HUMAnN2 (MetaPhlAn2 included)
+ - [ ] Add SRST2
+ - [x] Add nf-core style configuration (params and profiles)
+   - [x] Standard execution
+   - [x] Simple test
+   - [x] GIS configuration (using conda)
+   - [ ] AWS batch
+   - [ ] AWS HPC
+  - [ ] Add nf-core style documentation
+
+
 ## Features
- - The new DSL2 syntax for pipeline modularity
- - Dockerfile for each software
+ - The new DSL2 syntax for pipeline modularity and reusabiligy
+ - Dockerfile for each software (all containers can be found at [DockerHub](https://hub.docker.com/u/lichenhao))
  - Conda recipe for each software/step
  - Configuration for local execution (server), GIS HPC (using SGE schedular), AWS batch and AWS auto-scaling cluster
 
@@ -36,7 +54,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 Run using attached testing dataset
 
 ```sh
-$ shotgunmetagenomics-nf/main.nf
+$ shotgunmetagenomics-nf/main.nf -profile test
 N E X T F L O W  ~  version 19.09.0-edge
 Launching `./main.nf` [cheesy_volhard] - revision: dc7259a08e
 WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
@@ -52,13 +70,28 @@ Succeeded   : 8
 
 For the full help information, use
 
-```
+```sh
 $ shotgunmetagenomics-nf/main.nf --help
 ```
+
+Run on GIS cluster
+
+```sh
+$ shotgunmetagenomics-nf/main -profile gis --read_path PATH_TO_READS
+```
+
+Run with docker
+
+```
+$ shotgunmetagenomics-nf/main -profile docker --read_path PATH_TO_READS
+```
+
+You can specifiy multiple profiles separated by comma, e.g. `-profile docker,test`.
 
 ## Usage cases
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)
  - Chng *et al*. Cartography of opportunistic pathogens and antibiotic resistance genes in a tertiary hospital environment. *BioRxiv* (2019)
+ - Nandi *et al*. Gut microbiome recovery after antibiotic usage is mediated by specific bacterial species. *BioRxib* (2018)
 
 ## Contact
 

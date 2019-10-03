@@ -7,6 +7,22 @@
  - 尽可能提供Dockerfile和Conda YAML文件，运算环境可重复
  - 提供多种环境的配置文件，GIS高性能计算(SGE)，AWS (batch)，AWS Cluster (ignite)
 
+## 开发进程
+ - [x] 加入去宿主DNA模块
+   - [x] Docker支持
+   - [x] Conda支持
+ - [x] 加入kraken2和bracken
+   - [x] Docker支持
+   - [x] Conda支持
+ - [ ] 加入HUMAnN2 (间接支持MetaPhlAn2)
+ - [ ] 加入SRST2
+ - [x] nf-core style风格配置文件 (params and profiles)
+   - [x] 标注执行(standard)
+   - [x] 测试(test)
+   - [x] GIS集群(gis)
+   - [ ] AWS batch
+   - [ ] AWS HPC
+  - [ ] nf-core风格文档
 
 ## 依赖
 
@@ -50,10 +66,26 @@ Succeeded   : 8
 $ shotgunmetagenomics-nf/main.nf --help
 ```
 
+在GIS集群上使用
+
+```sh
+$ shotgunmetagenomics-nf/main -profile gis --read_path PATH_TO_READS
+```
+
+使用Docker容器
+
+```
+$ shotgunmetagenomics-nf/main -profile docker --read_path PATH_TO_READS
+```
+
+支持提供多个profile, 例如: `-profile docker,test`.
+
 
 ## 应用案例
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)
  - Chng *et al*. Cartography of opportunistic pathogens and antibiotic resistance genes in a tertiary hospital environment. *BioRxiv* (2019)
+ - Nandi *et al*. Gut microbiome recovery after antibiotic usage is mediated by specific bacterial species. *BioRxib* (2018)
+
 
 ## 联系人
 李陈浩：lichenhao.sg@gmail.com, lich@gis.a-star.edu.sg

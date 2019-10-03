@@ -26,6 +26,7 @@ RUN curl -L https://github.com/jenniferlu717/Bracken/archive/v${VERSION}.tar.gz 
     mv bracken-build bracken src /usr/local/bin && \
     cd /tmp && rm -rf Braken-$VERSION
 RUN apt-get install -y python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN apt-get clean -y && \
     apt-get autoremove -y

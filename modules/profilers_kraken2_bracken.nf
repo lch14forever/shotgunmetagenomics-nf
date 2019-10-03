@@ -3,7 +3,6 @@ params.outdir = './kraken2_out'
 
 process KRAKEN2 {
     tag "${prefix}"
-    cpus 8
     publishDir "$params.outdir/kraken2_out", mode: 'copy'
 
     input:
@@ -38,7 +37,6 @@ process KRAKEN2 {
 
 process BRACKEN {
     tag "${prefix}"
-    cpus 1
     publishDir "${params.outdir}/braken_out", mode: 'copy'
 
     input:
