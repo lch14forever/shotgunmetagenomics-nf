@@ -77,21 +77,22 @@ $ shotgunmetagenomics-nf/main.nf --help
 Run on GIS cluster
 
 ```sh
-$ shotgunmetagenomics-nf/main -profile gis --read_path PATH_TO_READS
+$ shotgunmetagenomics-nf/main.nf -profile gis --read_path PATH_TO_READS
 ```
 
 Run with docker
 
 ```
-$ shotgunmetagenomics-nf/main -profile docker --read_path PATH_TO_READS
+$ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
 ```
 
 You can specifiy multiple profiles separated by comma, e.g. `-profile docker,test`.
 
 ## Usage cases
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)
+ - Nandi *et al*. Gut microbiome recovery after antibiotic usage is mediated by specific bacterial species. *BioRxiv* (2018)
  - Chng *et al*. Cartography of opportunistic pathogens and antibiotic resistance genes in a tertiary hospital environment. *BioRxiv* (2019)
- - Nandi *et al*. Gut microbiome recovery after antibiotic usage is mediated by specific bacterial species. *BioRxib* (2018)
+
 
 ## Contact
 
