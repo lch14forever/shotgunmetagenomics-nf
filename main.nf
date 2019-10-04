@@ -25,14 +25,14 @@ def helpMessage() {
           + :;   +++, ;++; ;++++  ;++;        +++  +++           +++
           +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
           ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
-
-    ###################### CSB5 Shotgun Metagenomics Pipeline ####################
+    ===============================================================================
+        CSB5 Shotgun Metagenomics Pipeline [version ${params.pipelineVersion}]
 
     Usage:
     The typical command for running the pipeline is as follows:
       nextflow run ${workflow.projectDir}/main.nf  --read_path PATH_TO_READS
     Input arguments:
-      --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: ${workflow.projectDir}]
+      --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: ${workflow.projectDir}/data]
     Output arguments:
       --outdir                  Output directory [Default: ./pipeline_output/]
     Decontamination arguments:
@@ -40,7 +40,7 @@ def helpMessage() {
       --decont_index            BWA index prefix for the host
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
-
+    ###############################################################################
     """.stripIndent()
 }
 if (params.help){
@@ -48,18 +48,40 @@ if (params.help){
     exit 0
 }
 
-// import modules
-include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
-include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
+if( ! nextflow.version.matches(">= $params.nf_required_version") ){
+   log.error "[Assertion error] Nextflow version $params.nf_required_version required! You are running v$workflow.nextflow.version!\n" 
+}
 
-// TODO: assertion on file existence
-
-// data channels
+// *Decont specific (remove if you don't need decont)* //
+if (!params.containsKey('decont_refpath') | !params.containsKey('decont_index')){
+   exit 1, "[Assertion error] Please provide the BWA index path for the host using `--decont_refpath` and `--decont_index`!\n"
+}
+if (!file("${params.decont_refpath}/${params.decont_index}").exists()){
+   exit 1, "[Assertion error] Cannot find the BWA index in the ${params.decont_refpath}"
+}
 ch_bwa_idx = file(params.decont_refpath)
+
+// *Kraken2 specific (remove if you don't need kraken2)* //
+if (!params.containsKey('kraken2_index')){
+   exit 1, "[Assertion error] Please provide the Kraken2 index path using `--kraken2_index`!\n"
+}
+if (!file("${params.decont_refpath}/${params.decont_index}").exists()){
+   exit 1, "[Assertion error] Cannot find the BWA index in the ${params.decont_refpath}"
+}
+ch_kraken_idx = file(params.kraken2_index)
+
+// *MetaPhlAn2 specific (remove if you don't need MetaPhlAn2)* //
+// TODO
+
+// *HUMAnN2 specific (remove if you don't need HUMAnN2)* //
+// TODO
+
 ch_reads = Channel
     .fromFilePairs(params.read_path + '/**{1,2}.f*q*', flat: true, checkIfExists: true)
 
-ch_kraken_idx = file(params.kraken2_index)
+// import modules
+include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
+include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
 
 // processes
 workflow{

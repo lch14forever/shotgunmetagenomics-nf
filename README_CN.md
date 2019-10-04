@@ -64,6 +64,44 @@ Succeeded   : 8
 
 ```
 $ shotgunmetagenomics-nf/main.nf --help
+
+N E X T F L O W  ~  version 19.09.0-edge
+Launching `shotgunmetagenomics-nf/main.nf` [fabulous_feynman] - revision: e8ec2a095b
+WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
+###############################################################################
+
+      +++++++++++++++++'++++
+      ++++++++++++++++''+'''
+      ++++++++++++++'''''''+
+      ++++++++++++++''+'++++
+      ++++++++++++++''''++++
+      +++++++++++++'++''++++
+      ++++++++++++++++++++++       ++++++++:,   +++   ++++++++
+      +++++++++++++, +++++++     +++.  .'+++;  +++  :+++   '++
+      ++++++ ``'+`  ++++++++   +++'        ';  +++  +++      +
+      ++++`   +++  +++++++++  +++              +++  +++:
+      ++,  ,+++`  ++++++++++  ++;              +++    ++++
+      +, ;+++  + .++++++++++  +++     .++++++  +++       ++++
+      + `++;  ++  +++++;;+++  +++         +++  +++          '++,
+      + :;   +++, ;++; ;++++  ;++;        +++  +++           +++
+      +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
+      ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
+===============================================================================
+    CSB5 Shotgun Metagenomics Pipeline [version 0.0.1dev]
+
+Usage:
+The typical command for running the pipeline is as follows:
+  nextflow run shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
+Input arguments:
+  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: shotgunmetagenomics-nf/data]
+Output arguments:
+  --outdir                  Output directory [Default: ./pipeline_output/]
+Decontamination arguments:
+  --decont_ref_path         Path to the host reference database
+  --decont_index            BWA index prefix for the host
+Kraken2 arguments:
+  --kraken2_index           Path to the kraken2 database
+###############################################################################
 ```
 
 在GIS集群上使用
