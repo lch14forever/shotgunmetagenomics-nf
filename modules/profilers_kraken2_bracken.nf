@@ -11,7 +11,8 @@ process KRAKEN2 {
 
     output:
     tuple prefix, file("${prefix}.kraken2.report")
-    tuple file("${prefix}.kraken2.out"), file("${prefix}.kraken2.tsv")
+    tuple prefix, file("${prefix}.kraken2.tax")
+    file "${prefix}.kraken2.out"
 
     script:
     """
@@ -20,7 +21,7 @@ process KRAKEN2 {
     --paired \\
     --threads $task.cpus \\
     --output ${prefix}.kraken2.out \\
-    --report ${prefix}.kraken2.tsv \\
+    --report ${prefix}.kraken2.tax \\
     $reads1 $reads2 \\
     --use-mpa-style \\
 
@@ -45,7 +46,7 @@ process BRACKEN {
     each tax
 
     output:
-    tuple file("${prefix}*.tsv")
+    file "${prefix}*.tsv"
     
     script:
     """
@@ -58,6 +59,6 @@ process BRACKEN {
     
     sed 's/ /_/g' ${prefix}.bracken.${tax} | \\
     tail -n+2 | \\
-    cut -f 1,7 > ${prefix}.${tax}.tsv
+    cut -f 1,7 > ${prefix}.bracken.${tax}.tsv
     """
 }

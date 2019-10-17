@@ -82,10 +82,13 @@ ch_reads = Channel
 // import modules
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
 include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
+include './modules/split_tax_profile' params(outdir: "$params.outdir")
+
 
 // processes
 workflow{
     DECONT(ch_bwa_idx, ch_reads)
     KRAKEN2(ch_kraken_idx, DECONT.out[0])
     BRACKEN(ch_kraken_idx, KRAKEN2.out[0], Channel.from('s', 'g'))
+    SPLIT_PROFILE(KRAKEN2.out[1], 'kraken2')
 }
