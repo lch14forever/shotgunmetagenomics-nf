@@ -131,6 +131,12 @@ You can specifiy multiple profiles separated by comma, e.g. `-profile docker,tes
  - Nandi *et al*. Gut microbiome recovery after antibiotic usage is mediated by specific bacterial species. *BioRxiv* (2018)
  - Chng *et al*. Cartography of opportunistic pathogens and antibiotic resistance genes in a tertiary hospital environment. *BioRxiv* (2019)
 
+## Adding a module
+
+1. Write a module and put it into `modules/`
+1. Add to the main script `main.nf`
+1. Modify the configuration file `conf/base.config` to add resources required (for GIS users, modify `conf/gis.config` as well for the specific conda envrionment)
+1. Add conda and docker files for the new module
 
 ## Contact
 
