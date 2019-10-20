@@ -10,10 +10,10 @@ process SPLIT_PROFILE {
     output:
     tuple prefix, file("${prefix}*.tsv")
 
-    script:
-    """
-    grep -v '^#' $profile   \\
+    shell:
+    '''
+    grep -v '^#' !{profile}   \\
       | sed -E 's/.*\\|//'  \\
-      | awk -v prefix=$prefix '{var=substr(\$0, 0,1); print >prefix"."var".tsv"} '
-    """
+      | awk -v prefix=!{prefix} '{var=substr($0, 1,1); print >prefix"."var".tsv"} '
+    '''
 }
