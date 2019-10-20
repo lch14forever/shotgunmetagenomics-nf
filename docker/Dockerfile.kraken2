@@ -1,11 +1,3 @@
-############################################################
-# Dockerfile to build image for fastq preprocessing
-# Based on ubuntu
-# To build:
-# cat Dockerfile | docker build -t decont -
-# Ref: https://github.com/ddiez/samtools/blob/master/Dockerfile
-############################################################
-
 FROM ubuntu:18.04
 MAINTAINER Chenhao Li
 

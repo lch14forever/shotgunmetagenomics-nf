@@ -72,22 +72,19 @@ if( ! nextflow.version.matches(">= $params.nf_required_version") ){
 if (!params.containsKey('decont_refpath') | !params.containsKey('decont_index')){
    exit 1, "[Assertion error] Please provide the BWA index path for the host using `--decont_refpath` and `--decont_index`!\n"
 }
-if (!file("${params.decont_refpath}/${params.decont_index}").exists()){
-   exit 1, "[Assertion error] Cannot find the BWA index in the ${params.decont_refpath}"
-}
 ch_bwa_idx = file(params.decont_refpath)
 
 // *Kraken2 specific (remove if you don't need kraken2)* //
 if (!params.containsKey('kraken2_index')){
    exit 1, "[Assertion error] Please provide the Kraken2 index path using `--kraken2_index`!\n"
 }
-if (!file("${params.decont_refpath}/${params.decont_index}").exists()){
-   exit 1, "[Assertion error] Cannot find the BWA index in the ${params.decont_refpath}"
-}
 ch_kraken_idx = file(params.kraken2_index)
 
 // *MetaPhlAn2 specific (remove if you don't need MetaPhlAn2)* //
-// TODO
+if (!params.containsKey('metaphlan2_index') | !params.containsKey('metaphlan2_refpath') | !params.containsKey('metaphlan2_pkl')){
+   exit 1, "[Assertion error] Please provide the metaphlan2 index path using `--metaphlan2_refpath`, `--metaphlan2_pkl` and `--metaphlan2_index`!\n"
+}
+ch_metaphlan2_idx = file(params.metaphlan2_refpath)
 
 // *HUMAnN2 specific (remove if you don't need HUMAnN2)* //
 // TODO
@@ -99,12 +96,13 @@ ch_reads = Channel
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
 include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
 include './modules/split_tax_profile' params(outdir: "$params.outdir")
-
+include './modules/profilers_metaphlan2' params(outdir: "$params.outdir")
 
 // processes
 workflow{
     DECONT(ch_bwa_idx, ch_reads)
     KRAKEN2(ch_kraken_idx, DECONT.out[0])
     BRACKEN(ch_kraken_idx, KRAKEN2.out[0], Channel.from('s', 'g'))
-    SPLIT_PROFILE(KRAKEN2.out[1], 'kraken2')
+    METAPHLAN2(ch_metaphlan2_idx, DECONT.out[0])
+    SPLIT_PROFILE(METAPHLAN2.out[0], Channel.from('metaphlan2', 'kraken2'))
 }

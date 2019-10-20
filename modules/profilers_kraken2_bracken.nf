@@ -29,7 +29,7 @@ process KRAKEN2 {
     kraken2 \\
     --db $index_path \\
     --paired \\
-    --threads $task.cpu \\
+    --threads $task.cpus \\
     --report ${prefix}.kraken2.report \\
     $reads1 $reads2 \\
     --output -

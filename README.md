@@ -13,6 +13,9 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [x] Add kraken2 and bracken
    - [x] Docker
    - [x] Conda
+ - [x] Add MetaPhlAn2
+   - [x] Docker (using image from biocontainers)
+   - [x] Conda
  - [ ] Add HUMAnN2 (MetaPhlAn2 included)
  - [ ] Add SRST2
  - [x] Add nf-core style configuration (params and profiles)
@@ -44,7 +47,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 ### Reference based analysis
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): Taxonomic profiling
- - MetaPhlAn2: Taxonomic profiling
+ - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): Taxonomic profiling
  - SRST2: Resistome profiling
  - HUMAnN2: Pathway analysis
 

@@ -14,6 +14,9 @@
  - [x] 加入kraken2和bracken
    - [x] Docker支持
    - [x] Conda支持
+ - [x] 加入MetaPhlAn2
+   - [x] Docker支持（使用Biocontainers的镜像）
+   - [x] Conda支持
  - [ ] 加入HUMAnN2 (间接支持MetaPhlAn2)
  - [ ] 加入SRST2
  - [x] nf-core style风格配置文件 (params and profiles)
@@ -37,7 +40,7 @@
 
 ### 有参宏基因组分析
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): 物种分类分析
- - MetaPhlAn2: 物种分类分析
+ - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): 物种分类分析
  - SRST2: 抗生素抗药性分析
  - HUMAnN2: 代谢通路分析
 
