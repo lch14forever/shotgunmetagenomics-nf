@@ -20,7 +20,7 @@
    - [x] 标注执行(standard)
    - [x] 测试(test)
    - [x] GIS集群(gis)
-   - [ ] AWS batch
+   - [x] AWS batch (awsbatch)
    - [ ] AWS HPC
   - [ ] nf-core风格文档
 
@@ -91,16 +91,24 @@ WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN
 
 Usage:
 The typical command for running the pipeline is as follows:
-  nextflow run shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
+  nextflow run /home/ubuntu/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
+
 Input arguments:
-  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: shotgunmetagenomics-nf/data]
+  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: /home/ubuntu/shotgunmetagenomics-nf/data]
+
 Output arguments:
   --outdir                  Output directory [Default: ./pipeline_output/]
+
 Decontamination arguments:
   --decont_ref_path         Path to the host reference database
   --decont_index            BWA index prefix for the host
+
 Kraken2 arguments:
   --kraken2_index           Path to the kraken2 database
+
+AWSBatch options:
+  --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
+  --awsregion               The AWS Region for your AWS Batch job to run on
 ###############################################################################
 ```
 
@@ -112,8 +120,14 @@ $ shotgunmetagenomics-nf/main.nf -profile gis --read_path PATH_TO_READS
 
 使用Docker容器
 
-```
+```sh
 $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
+```
+
+使用AWS batch （[AWS batch环境配置教程](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/)）
+
+```sh
+$ ./main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
 ```
 
 支持提供多个profile, 例如: `-profile docker,test`.
