@@ -31,15 +31,23 @@ def helpMessage() {
     Usage:
     The typical command for running the pipeline is as follows:
       nextflow run ${workflow.projectDir}/main.nf  --read_path PATH_TO_READS
+
     Input arguments:
       --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: ${workflow.projectDir}/data]
+
     Output arguments:
       --outdir                  Output directory [Default: ./pipeline_output/]
+
     Decontamination arguments:
       --decont_ref_path         Path to the host reference database
       --decont_index            BWA index prefix for the host
+
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
+
+    AWSBatch options:
+      --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
+      --awsregion               The AWS Region for your AWS Batch job to run on
     ###############################################################################
     """.stripIndent()
 }
@@ -48,6 +56,14 @@ if (params.help){
     exit 0
 }
 
+
+// AWSBatch sanity checking
+if(workflow.profile.contains('awsbatch')){
+    if (!params.containsKey('awsqueue') || !params.containsKey('awsregion')) exit 1, "Specify correct --awsqueue and --awsregion parameters on AWSBatch!"
+    if (!params.outdir.startsWith('s3')) exit 1, "Specify S3 URLs for outdir parameters on AWSBatch!"
+}
+
+// Nextflow version sanity checking
 if( ! nextflow.version.matches(">= $params.nf_required_version") ){
    log.error "[Assertion error] Nextflow version $params.nf_required_version required! You are running v$workflow.nextflow.version!\n" 
 }

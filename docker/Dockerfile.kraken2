@@ -9,11 +9,11 @@
 FROM ubuntu:18.04
 MAINTAINER Chenhao Li
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 
 ENV VERSION=2.0.8-beta
 RUN apt-get install -y curl
-RUN apt-get install -y build-essential
+RUN apt-get install -y build-essential 
 RUN curl -L https://github.com/DerrickWood/kraken2/archive/v${VERSION}.tar.gz > /tmp/kraken2-$VERSION.tar.gz && \
     cd /tmp && tar xfv kraken2-$VERSION.tar.gz && rm kraken2-$VERSION.tar.gz && \
     cd kraken2-$VERSION && ./install_kraken2.sh /usr/local/bin/ && \
