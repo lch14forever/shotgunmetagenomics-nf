@@ -45,6 +45,11 @@ def helpMessage() {
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
 
+    MetaPhlAn2 arguments:
+      --metaphlan2_ref_path     Path to the metaphlan2 database
+      --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
+      --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
+
     AWSBatch options:
       --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
       --awsregion               The AWS Region for your AWS Batch job to run on

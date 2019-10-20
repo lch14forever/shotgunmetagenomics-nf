@@ -135,7 +135,11 @@ Run with docker
 $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
 ```
 
-Run on AWS batch ([AWS batch configuration tutorail](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/))
+Run on AWS batch ([AWS batch configuration tutorial](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/))
+
+ - IAM configuration (set environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION)
+ - Batch compute environment & job queue
+ - Customized AMI (AWS ECS optimized linux + awscli installed with *miniconda*)
 
 ```sh
 $ ./main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 

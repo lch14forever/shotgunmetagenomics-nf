@@ -129,6 +129,10 @@ $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
 
 使用AWS batch （[AWS batch环境配置教程](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/)）
 
+ - IAM配置 (在nextflow运行机器上设置环境变量AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION)
+ - Batch 计算环境 & 作业队列
+ - 定制AMI (AWS ECS optimized linux + 使用*miniconda*安装的awscli)
+
 ```sh
 $ ./main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
 ```
