@@ -10,8 +10,8 @@ process KRAKEN2 {
     tuple prefix, file(reads1), file(reads2)
 
     output:
+    tuple prefix, file("${prefix}.kraken2.tax"), val("kraken2")
     tuple prefix, file("${prefix}.kraken2.report")
-    tuple prefix, file("${prefix}.kraken2.tax")
     file "${prefix}.kraken2.out"
 
     script:

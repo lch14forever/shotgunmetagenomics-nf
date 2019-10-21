@@ -11,7 +11,7 @@ process METAPHLAN2 {
     tuple prefix, file(reads1), file(reads2)
 
     output:
-    tuple prefix, file("${prefix}.metaphlan2.tax")
+    tuple prefix, file("${prefix}.metaphlan2.tax"), val("metaphlan2")
     // tuple prefix, file("${prefix}.metaphlan2.sam.bz2") // might be needed for strainphlan in the future
     
     script:

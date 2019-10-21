@@ -142,10 +142,15 @@ Run on AWS batch ([AWS batch configuration tutorial](https://antunderwood.gitlab
  - Customized AMI (AWS ECS optimized linux + awscli installed with *miniconda*)
 
 ```sh
-$ ./main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
+$ shotgunmetagenomics-nf/main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
 ```
 
 You can specifiy multiple profiles separated by comma, e.g. `-profile docker,test`.
+
+Run multiple profilers
+```sh
+$ shotgunmetagenomics-nf/main.nf -profile gis --profiler kraken2,metaphlan2 --read_path PATH_TO_READS
+```
 
 ## Usage cases
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)

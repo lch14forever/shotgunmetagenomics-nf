@@ -5,8 +5,7 @@ process SPLIT_PROFILE {
     publishDir "${params.outdir}/split_${profiler}_out", mode: 'copy'
 
     input:
-    tuple prefix, file(profile)
-    val profiler
+    tuple prefix, file(profile), profiler
     output:
     tuple prefix, file("${prefix}*.tsv")
 

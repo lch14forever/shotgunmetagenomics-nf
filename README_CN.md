@@ -134,11 +134,16 @@ $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
  - 定制AMI (AWS ECS optimized linux + 使用*miniconda*安装的awscli)
 
 ```sh
-$ ./main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
+$ shotgunmetagenomics-nf/main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
 ```
 
 支持提供多个profile, 例如: `-profile docker,test`.
 
+同时运行多个分类器
+
+```sh
+$ shotgunmetagenomics-nf/main.nf -profile gis --profiler kraken2,metaphlan2 --read_path PATH_TO_READS
+```
 
 ## 应用案例
  - Chng *et al*. Whole metagenome profiling reveals skin microbiome dependent susceptibility to atopic dermatitis flares. *Nature Microbiology* (2016)

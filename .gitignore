@@ -3,5 +3,4 @@
 #*
 work/
 tutorial/
-pipeline_out*
-pipeline_info/
+pipeline*
