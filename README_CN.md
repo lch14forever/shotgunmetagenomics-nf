@@ -20,7 +20,7 @@
  - [ ] 加入HUMAnN2 (间接支持MetaPhlAn2)
  - [ ] 加入SRST2
  - [x] nf-core style风格配置文件 (params and profiles)
-   - [x] 标注执行(standard)
+   - [x] 标准执行(standard)
    - [x] 测试(test)
    - [x] GIS集群(gis)
    - [x] AWS batch (awsbatch)
