@@ -113,19 +113,9 @@ if (profilers.contains('metaphlan2')){
 // *HUMAnN2 specific (remove if you don't need HUMAnN2)* //
 // TODO
 
-if (workflow.profile.contains('gis') && !workflow.profile.contains('test')) {
-    // Use GIS sample specific pattern
-    // Assumes each sample is put into a folder named after the sample name
-    // Example1: Sample_MBE032/MBE032_HS007-PE-R00399_L002_R{1,2}_unaligned_001.fastq.gz
-    // Example2: MBS667/MBS667-TCAGATGC_S20_L002_R{1,2}_001.fastq.gz
-    // TODO: handle multiple fastq files belonging to the same sample. Currently manually concatenating them is a solution.
-    ch_reads = Channel
-        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) { file -> file.getParent().name.replaceAll(/Sample_/, '')  }
-}
-else {
-    ch_reads = Channel
+ch_reads = Channel
         .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
-}
+
 
 // import modules
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
