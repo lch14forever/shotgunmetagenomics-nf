@@ -12,7 +12,7 @@ process KRAKEN2 {
     output:
     tuple prefix, file("${prefix}.kraken2.tax"), val("kraken2")
     tuple prefix, file("${prefix}.kraken2.report")
-    file "${prefix}.kraken2.out"
+    // file "${prefix}.kraken2.out.gz" // This is not necessary...
 
     script:
     """
@@ -33,6 +33,9 @@ process KRAKEN2 {
     --report ${prefix}.kraken2.report \\
     $reads1 $reads2 \\
     --output -
+
+    // gzip ${prefix}.kraken2.out
+    rm ${prefix}.kraken2.out
     """
 }
 
