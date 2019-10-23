@@ -53,6 +53,10 @@ def helpMessage() {
       --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
       --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
 
+    HUMAnN2 arguments:
+      --humann2_nucleotide      Path to humann2 chocophlan database
+      --humann2_protein         Path to humann2 protein database
+
     AWSBatch options:
       --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
       --awsregion               The AWS Region for your AWS Batch job to run on
@@ -78,9 +82,9 @@ if( ! nextflow.version.matches(">= $params.nf_required_version") ){
 
 // Profiler sanity checking
 def profilers = [] as Set
+def profilers_expected = ['kraken2', 'metaphlan2', 'humann2'] as Set
 if(params.profilers.getClass() != Boolean){
     def profilers_input = params.profilers.split(',') as Set
-    def profilers_expected = ['kraken2', 'metaphlan2'] as Set
     def profiler_diff = profilers_input - profilers_expected
     profilers = profilers_input.intersect(profilers_expected)
     if( profiler_diff.size() != 0 ) {
@@ -110,8 +114,14 @@ if (profilers.contains('metaphlan2')){
    ch_metaphlan2_idx = file(params.metaphlan2_refpath)
 }
 
-// *HUMAnN2 specific (remove if you don't need HUMAnN2)* //
-// TODO
+// *HUMAnN2 specific* //
+if (profilers.contains('humann2')){
+   if (!profilers.contains('metaphlan2')){
+       exit 1, "[Pipeline error] MetaPhlAn2 required (e.g. `--profilers metaphlan2,humann2`)!\n"
+   }
+   ch_humann2_nucleotide = file(params.humann2_nucleotide)
+   ch_humann2_protein = file(params.humann2_protein)
+}
 
 ch_reads = Channel
         .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
@@ -121,9 +131,11 @@ ch_reads = Channel
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
 include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
 include './modules/profilers_metaphlan2' params(outdir: "$params.outdir")
+include './modules/profilers_humann2' params(outdir: "$params.outdir")
+
 // TODO: is there any elegant method to do this?
-include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir")
-include SPLIT_PROFILE as SPLIT_KRAKEN2 from './modules/split_tax_profile' params(outdir: "$params.outdir")
+include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
+include SPLIT_PROFILE as SPLIT_KRAKEN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
    
 
 // processes
@@ -138,5 +150,9 @@ workflow{
     if(profilers.contains('metaphlan2')){
     	METAPHLAN2(ch_metaphlan2_idx, DECONT.out[0])
     	SPLIT_METAPHLAN2(METAPHLAN2.out[0])
+    }
+    if(profilers.contains('humann2')){
+        HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out)
+	HUMANN2(ch_humann2_protein, ch_reads.join(HUMANN2_INDEX.out))
     }
 }

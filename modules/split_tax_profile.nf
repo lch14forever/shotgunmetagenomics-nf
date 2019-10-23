@@ -1,11 +1,12 @@
 params.outdir = './'
+params.profiler = 'metaphlan2'
 
 process SPLIT_PROFILE {
-    tag "${profiler}|${prefix}"
-    publishDir "${params.outdir}/split_${profiler}_out", mode: 'copy'
+    tag "${params.profiler}|${prefix}"
+    publishDir "${params.outdir}/split_${params.profiler}_out", mode: 'copy'
 
     input:
-    tuple prefix, file(profile), profiler
+    tuple prefix, file(profile)
     output:
     tuple prefix, file("${prefix}*.tsv")
 

@@ -16,7 +16,9 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [x] Add MetaPhlAn2
    - [x] Docker (using image from biocontainers)
    - [x] Conda
- - [ ] Add HUMAnN2 (MetaPhlAn2 included)
+ - [x] Add HUMAnN2 (MetaPhlAn2 included)
+   - [x] Docker (customized script)
+   - [ ] Conda
  - [ ] Add SRST2
  - [x] Add nf-core style configuration (params and profiles)
    - [x] Standard execution
@@ -48,8 +50,11 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 ### Reference based analysis
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): Taxonomic profiling
  - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): Taxonomic profiling
+ - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): Pathway analysis. The following two files are modified to read a SAM file from standard input
+   - `humann2.py`
+   - `search/nucleotide.py`
  - SRST2: Resistome profiling
- - HUMAnN2: Pathway analysis
+
 
 
 ## Usage
@@ -99,13 +104,12 @@ WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN
       ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
 ===============================================================================
     CSB5 Shotgun Metagenomics Pipeline [version 0.0.1dev]
-
 Usage:
 The typical command for running the pipeline is as follows:
-  nextflow run /home/ubuntu/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
+  nextflow run /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
 
 Input arguments:
-  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: /home/ubuntu/shotgunmetagenomics-nf/data]
+  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/data]
 
 Output arguments:
   --outdir                  Output directory [Default: ./pipeline_output/]
@@ -114,8 +118,20 @@ Decontamination arguments:
   --decont_ref_path         Path to the host reference database
   --decont_index            BWA index prefix for the host
 
+Profiler configuration:
+  --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2]
+
 Kraken2 arguments:
   --kraken2_index           Path to the kraken2 database
+
+MetaPhlAn2 arguments:
+  --metaphlan2_ref_path     Path to the metaphlan2 database
+  --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
+  --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
+
+HUMAnN2 arguments:
+  --humann2_nucleotide      Path to humann2 chocophlan database
+  --humann2_protein         Path to humann2 protein database
 
 AWSBatch options:
   --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
