@@ -4,10 +4,10 @@ params.humann2db_version = 'v0.1.1'
 
 process HUMANN2_INDEX {
     tag "${prefix}"
-    
+
     input:
     file humann2_nucleotide
-    tuple prefix, metaphlan2_tax
+    tuple prefix, file(metaphlan2_tax)
 
     output:
     tuple prefix, file("index")
@@ -16,7 +16,8 @@ process HUMANN2_INDEX {
     """
     touch customized.ffn; \\
     mkdir index; \\
-
+    ls ${humann2_nucleotide}/
+    head $metaphlan2_tax
     for i in `awk -v threshold=${params.presence_threshold} ' \$2>threshold {print \$1}' $metaphlan2_tax | \\
         grep -o "g__.*s__.*" |  \\
         grep -v "t__" | \\
@@ -45,11 +46,7 @@ process HUMANN2 {
     tuple prefix, file(reads1), file(reads2), file(index)
 
     output:
-    tuple prefix, file("${prefix}.humann2_genefamilies.tsv")
-    //tuple prefix, file("${prefix}.humann2_genefamilies.relab.tsv")
-    tuple prefix, file("${prefix}.humann2_pathabundance.tsv")
-    //tuple prefix, file("${prefix}.humann2_pathabundance.relab.tsv")
-    tuple prefix, file("${prefix}.humann2_pathcoverage.tsv")
+    tuple prefix, file("${prefix}.humann2_*.tsv")
 
     script:
     """
@@ -62,14 +59,14 @@ process HUMANN2 {
     --input-format sam \\
     --protein-database $humann2_protein \\
     --threads $task.cpus \\
-    -o ${prefix}.humann2;
+    -o ./;
 
-    #humann2_renorm_table --input ${prefix}.humann2_genefamilies.tsv \\
-    #--output ${prefix}.humann2_genefamilies.relab.tsv \\
-    #--units relab; \\
+    humann2_renorm_table --input ${prefix}.humann2_genefamilies.tsv \\
+    --output ${prefix}.humann2_genefamilies.relab.tsv \\
+    --units relab; \\
 
-    #humann2_renorm_table --input ${prefix}.humann2_pathabundance.tsv \\
-    #--output ${prefix}.humann2_pathabundance.relab.tsv \\
-    #--units relab 
+    humann2_renorm_table --input ${prefix}.humann2_pathabundance.tsv \\
+    --output ${prefix}.humann2_pathabundance.relab.tsv \\
+    --units relab 
     """
 }

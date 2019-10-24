@@ -27,4 +27,6 @@ kraken2_index      : "$REF_BUCKET/minikraken2_v2_8GB_201904_UPDATE"
 metaphlan2_refpath : "$REF_BUCKET/metaphlan2/"
 metaphlan2_index   : 'mpa_v20_m200'
 metaphlan2_pkl     : 'mpa_v20_m200.pkl'
+humann2_nucleotide : '$REF_BUCKET/humann2/chocophlan'
+humann2_protein    : '$REF_BUCKET/humann2/uniref'
 EOF
