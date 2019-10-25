@@ -23,7 +23,7 @@ process KRAKEN2 {
     --output ${prefix}.kraken2.out \\
     --report ${prefix}.kraken2.tax \\
     $reads1 $reads2 \\
-    --use-mpa-style \\
+    --use-mpa-style 
 
     ### run again for bracken
     kraken2 \\
@@ -53,12 +53,12 @@ process BRACKEN {
     
     script:
     """
-    TAX=$tax; \\
+    TAX=$tax
     
     bracken -d $index_path \\
     -i $kraken2_report \\
     -o ${prefix}.bracken.${tax} \\
-    -l \${TAX^^}; \\
+    -l \${TAX^^}
     
     sed 's/ /_/g' ${prefix}.bracken.${tax} | \\
     tail -n+2 | \\

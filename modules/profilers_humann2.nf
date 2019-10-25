@@ -14,22 +14,23 @@ process HUMANN2_INDEX {
 
     script:
     """
-    touch customized.ffn; \\
-    mkdir index; \\
+    echo $PATH
+    touch customized.ffn
+    mkdir index
 
     for i in `awk -v threshold=${params.presence_threshold} ' \$2>threshold {print \$1}' $metaphlan2_tax | \\
         grep -o "g__.*s__.*" |  \\
         grep -v "t__" | \\
         grep -v "unclassified" | \\
         sed 's/|/./' `; \\
-    do \\
+    do 
         FILE=${humann2_nucleotide}/\${i}.centroids.${params.humann2db_version}.ffn.gz
         if [ -f "\$FILE" ]; then
-           zcat  \$FILE >> customized.ffn; \\
+           zcat  \$FILE >> customized.ffn
         fi
-    done ; \\
+    done 
 
-    bowtie2-build customized.ffn index/customized.ffn; \\
+    bowtie2-build customized.ffn index/customized.ffn
 
     rm  customized.ffn
     """
@@ -49,6 +50,7 @@ process HUMANN2 {
 
     script:
     """
+    echo $PATH
     zcat $reads1 $reads2 | \\
     sed 's/ //g' | \\
     bowtie2 -p $task.cpus -x ${index}/customized.ffn -U - | \\
@@ -58,11 +60,11 @@ process HUMANN2 {
     --input-format sam \\
     --protein-database $humann2_protein \\
     --threads $task.cpus \\
-    -o ./;
+    -o ./
 
     humann2_renorm_table --input ${prefix}.humann2_genefamilies.tsv \\
     --output ${prefix}.humann2_genefamilies.relab.tsv \\
-    --units relab; \\
+    --units relab
 
     humann2_renorm_table --input ${prefix}.humann2_pathabundance.tsv \\
     --output ${prefix}.humann2_pathabundance.relab.tsv \\

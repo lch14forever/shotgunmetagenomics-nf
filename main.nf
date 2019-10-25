@@ -155,15 +155,15 @@ workflow{
 
     if(profilers.contains('kraken2')){
         KRAKEN2(ch_kraken_idx, DECONT.out[0])
-    	BRACKEN(ch_kraken_idx, KRAKEN2.out[1], Channel.from('s', 'g'))
-    	SPLIT_KRAKEN2(KRAKEN2.out[0])
+        BRACKEN(ch_kraken_idx, KRAKEN2.out[1], Channel.from('s', 'g'))
+        SPLIT_KRAKEN2(KRAKEN2.out[0])
     }
     if(profilers.contains('metaphlan2')){
-    	METAPHLAN2(ch_metaphlan2_idx, DECONT.out[0])
-    	SPLIT_METAPHLAN2(METAPHLAN2.out[0])
+        METAPHLAN2(ch_metaphlan2_idx, DECONT.out[0])
+        SPLIT_METAPHLAN2(METAPHLAN2.out[0])
     }
     if(profilers.contains('humann2')){
         HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out)
-	HUMANN2(ch_humann2_protein, ch_reads.join(HUMANN2_INDEX.out))
+        HUMANN2(ch_humann2_protein, DECONT.out[0].join(HUMANN2_INDEX.out))
     }
 }
