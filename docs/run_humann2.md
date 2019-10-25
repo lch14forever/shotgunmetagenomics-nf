@@ -56,10 +56,10 @@ for i in `awk -v threshold=${presence_threshold} ' $2>threshold {print $1}' ${pr
     grep -v "t__" | \
     grep -v "unclassified" | \
     sed 's/|/./' `; \
-do \
+do 
     FILE=${humann2_nucleotide}/${i}.centroids.${humann2db_version}.ffn.gz
     if [ -f "$FILE" ]; then
-        zcat  $FILE >> customized.ffn; \
+        zcat  $FILE >> customized.ffn
     fi
 done 
 
@@ -112,7 +112,7 @@ zcat $reads1 $reads2 | \
     --input-format sam \
     --protein-database $humann2_protein \
     --threads $cpus \
-    -o ./;
+    -o .
 
 humann2_renorm_table --input ${prefix}.humann2_genefamilies.tsv \
     --output ${prefix}.humann2_genefamilies.relab.tsv \
