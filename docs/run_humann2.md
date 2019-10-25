@@ -4,7 +4,7 @@
 
 The [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) software runs the following workflow:
 
-![][http://huttenhower.sph.harvard.edu/sites/default/files/humann2_diamond_500x500.jpg]
+![](http://huttenhower.sph.harvard.edu/sites/default/files/humann2_diamond_500x500.jpg)
 
 In the first step, it decompresses the fastq reads (if gzipped). If the reads is from the illumina casava v1.8+ format, it removes the space in each read name to distinguish "read1" and "read2". Besides, the workflow produces a SAM file when mapping to the customized chocophlan database.
 
