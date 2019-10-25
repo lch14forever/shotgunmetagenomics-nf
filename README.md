@@ -16,7 +16,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [x] Add MetaPhlAn2
    - [x] Docker (using image from biocontainers)
    - [x] Conda
- - [x] Add HUMAnN2 (MetaPhlAn2 included)
+ - [x] Add HUMAnN2
    - [x] Docker (customized script)
    - [ ] Conda
  - [ ] Add SRST2
@@ -50,7 +50,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 ### Reference based analysis
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): Taxonomic profiling
  - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): Taxonomic profiling
- - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): Pathway analysis. The following two files are modified to read a SAM file from standard input
+ - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): Pathway analysis. The following two files are modified to read a SAM file from standard input (See[Running HUMAnN2 with reduced disk storage](docs/run_humann2.md)):
    - `humann2.py`
    - `search/nucleotide.py`
  - SRST2: Resistome profiling
@@ -109,8 +109,9 @@ The typical command for running the pipeline is as follows:
   nextflow run /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
 
 Input arguments:
-  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/data]
-
+  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: false]
+  --reads                   Glob pattern to match reads, e.g. '/path/to/reads_*{R1,R2}.fq.gz' (this is in conflict with `--read_path`) [Default: false]
+  
 Output arguments:
   --outdir                  Output directory [Default: ./pipeline_output/]
 
@@ -119,7 +120,7 @@ Decontamination arguments:
   --decont_index            BWA index prefix for the host
 
 Profiler configuration:
-  --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2]
+  --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2]
 
 Kraken2 arguments:
   --kraken2_index           Path to the kraken2 database
@@ -151,7 +152,7 @@ Run with docker
 $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
 ```
 
-Run on AWS batch ([AWS batch configuration tutorial](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/))
+Run on AWS batch ([AWS batch configuration tutorial](https://t-neumann.github.io/pipelines/AWS-pipeline/))
 
  - IAM configuration (set environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION)
  - Batch compute environment & job queue

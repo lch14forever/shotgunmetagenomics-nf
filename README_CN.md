@@ -17,7 +17,9 @@
  - [x] 加入MetaPhlAn2
    - [x] Docker支持（使用Biocontainers的镜像）
    - [x] Conda支持
- - [ ] 加入HUMAnN2 (间接支持MetaPhlAn2)
+ - [ ] 加入HUMAnN2
+	 - [x] Docker支持（优化的镜像）
+	 - [ ] Conda
  - [ ] 加入SRST2
  - [x] nf-core style风格配置文件 (params and profiles)
    - [x] 标准执行(standard)
@@ -41,15 +43,17 @@
 ### 有参宏基因组分析
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): 物种分类分析
  - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): 物种分类分析
- - SRST2: 抗生素抗药性分析
- - HUMAnN2: 代谢通路分析
+ - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): 代谢通路分析，以下脚本被修改（见[Running HUMAnN2 with reduced disk storage](docs/run_humann2.md)）：
+   - `humann2.py`
+   - `search/nucleotide.py`
+ - SRST2: 抗药性分析
 
 ## 使用
 
 在流程附带的数据上测试
 
 ```sh
-$ shotgunmetagenomics-nf/main.nf
+$ shotgunmetagenomics-nf/main.nf -profile test
 N E X T F L O W  ~  version 19.09.0-edge
 Launching `./main.nf` [cheesy_volhard] - revision: dc7259a08e
 WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
@@ -90,15 +94,14 @@ WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN
       +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
       ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
 ===============================================================================
-    CSB5 Shotgun Metagenomics Pipeline [version 0.0.1dev]
-
 Usage:
 The typical command for running the pipeline is as follows:
-  nextflow run /home/ubuntu/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
+  nextflow run /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
 
 Input arguments:
-  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: /home/ubuntu/shotgunmetagenomics-nf/data]
-
+  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: false]
+  --reads                   Glob pattern to match reads, e.g. '/path/to/reads_*{R1,R2}.fq.gz' (this is in conflict with `--read_path`) [Default: false]
+  
 Output arguments:
   --outdir                  Output directory [Default: ./pipeline_output/]
 
@@ -106,8 +109,20 @@ Decontamination arguments:
   --decont_ref_path         Path to the host reference database
   --decont_index            BWA index prefix for the host
 
+Profiler configuration:
+  --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2]
+
 Kraken2 arguments:
   --kraken2_index           Path to the kraken2 database
+
+MetaPhlAn2 arguments:
+  --metaphlan2_ref_path     Path to the metaphlan2 database
+  --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
+  --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
+
+HUMAnN2 arguments:
+  --humann2_nucleotide      Path to humann2 chocophlan database
+  --humann2_protein         Path to humann2 protein database
 
 AWSBatch options:
   --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
@@ -127,7 +142,7 @@ $ shotgunmetagenomics-nf/main.nf -profile gis --read_path PATH_TO_READS
 $ shotgunmetagenomics-nf/main.nf -profile docker --read_path PATH_TO_READS
 ```
 
-使用AWS batch （[AWS batch环境配置教程](https://antunderwood.gitlab.io/bioinformant-blog/posts/running_nextflow_on_aws_batch/)）
+使用AWS batch （[AWS batch环境配置教程](https://t-neumann.github.io/pipelines/AWS-pipeline/)）
 
  - IAM配置 (在nextflow运行机器上设置环境变量AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION)
  - Batch 计算环境 & 作业队列

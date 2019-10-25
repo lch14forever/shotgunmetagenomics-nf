@@ -33,7 +33,8 @@ def helpMessage() {
       nextflow run ${workflow.projectDir}/main.nf  --read_path PATH_TO_READS
 
     Input arguments:
-      --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: ${workflow.projectDir}/data]
+      --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: false]
+      --reads                   Glob pattern to match reads, e.g. '/path/to/reads_*{R1,R2}.fq.gz' (this must be quoted and is in conflict with `--read_path`) [Default: false]
 
     Output arguments:
       --outdir                  Output directory [Default: ./pipeline_output/]
@@ -43,7 +44,7 @@ def helpMessage() {
       --decont_index            BWA index prefix for the host
 
     Profiler configuration:
-      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2]
+      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2]
 
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
@@ -76,8 +77,22 @@ if(workflow.profile.contains('awsbatch')){
 }
 
 // Nextflow version sanity checking
-if( ! nextflow.version.matches(">= $params.nf_required_version") ){
+if( ! nextflow.version.matches(">= $params.manifest.nextflowVersion") ){
     exit 1, "[Pipeline error] Nextflow version $params.nf_required_version required! You are running v$workflow.nextflow.version!\n" 
+}
+
+// Input sanity checking
+if (params.containsKey('read_path') && params.containsKey('reads') && params.read_path && params.reads){
+   exit 1, "[Pipeline error] Please specify your input using ONLY ONE of `--read_path` and `--reads`!\n"
+}
+if (params.containsKey('read_path') && params.read_path){
+   ch_reads = Channel
+        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
+} else if (params.containsKey('reads') && params.reads) {
+   ch_reads = Channel
+        .fromFilePairs(params.reads, flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
+} else {
+   exit 1, "[Pipeline error] Please specify your input using `--read_path` or `--reads`!\n"
 }
 
 // Profiler sanity checking
@@ -122,10 +137,6 @@ if (profilers.contains('humann2')){
    ch_humann2_nucleotide = file(params.humann2_nucleotide)
    ch_humann2_protein = file(params.humann2_protein)
 }
-
-ch_reads = Channel
-        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
-
 
 // import modules
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")

@@ -16,8 +16,7 @@ process HUMANN2_INDEX {
     """
     touch customized.ffn; \\
     mkdir index; \\
-    ls ${humann2_nucleotide}/
-    head $metaphlan2_tax
+
     for i in `awk -v threshold=${params.presence_threshold} ' \$2>threshold {print \$1}' $metaphlan2_tax | \\
         grep -o "g__.*s__.*" |  \\
         grep -v "t__" | \\
