@@ -77,8 +77,8 @@ if(workflow.profile.contains('awsbatch')){
 }
 
 // Nextflow version sanity checking
-if( ! nextflow.version.matches(">= $params.manifest.nextflowVersion") ){
-    exit 1, "[Pipeline error] Nextflow version $params.nf_required_version required! You are running v$workflow.nextflow.version!\n" 
+if( ! nextflow.version.matches("$workflow.manifest.nextflowVersion") ){
+    exit 1, "[Pipeline error] Nextflow version $workflow.manifest.nextflowVersion required! You are running v$workflow.nextflow.version!\n" 
 }
 
 // Input sanity checking
