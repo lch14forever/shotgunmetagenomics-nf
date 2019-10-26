@@ -19,7 +19,9 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [x] Add HUMAnN2
    - [x] Docker (customized script)
    - [ ] Conda
- - [ ] Add SRST2
+ - [x] Add SRST2
+   - [x] Docker (using image from biocontainers)
+   - [x] Conda
  - [x] Add nf-core style configuration (params and profiles)
    - [x] Standard execution
    - [x] Simple test
@@ -50,10 +52,10 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 ### Reference based analysis
  - [Kraken2](https://ccb.jhu.edu/software/kraken2/) (>=2.0.8-beta) + [Bracken](https://ccb.jhu.edu/software/bracken/) (>=2.5): Taxonomic profiling
  - [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/src/default/) (>=2.7.7): Taxonomic profiling
- - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): Pathway analysis. The following two files are modified to read a SAM file from standard input (See[Running HUMAnN2 with reduced disk storage](docs/run_humann2.md)):
+ - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): Pathway analysis. The following two files are modified to read a SAM file from standard input (See [Running HUMAnN2 with reduced disk storage](docs/run_humann2.md)):
    - `humann2.py`
    - `search/nucleotide.py`
- - SRST2: Resistome profiling
+ - [SRST2](https://github.com/katholt/srst2#installation) (=0.2.0): Resistome profiling
 
 
 

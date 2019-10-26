@@ -17,10 +17,12 @@
  - [x] 加入MetaPhlAn2
    - [x] Docker支持（使用Biocontainers的镜像）
    - [x] Conda支持
- - [ ] 加入HUMAnN2
-	 - [x] Docker支持（优化的镜像）
-	 - [ ] Conda
- - [ ] 加入SRST2
+ - [x] 加入HUMAnN2
+   - [x] Docker支持（优化的镜像）
+   - [ ] Conda
+ - [x] 加入SRST2
+   - [x] Docker支持（使用Biocontainers的镜像）
+   - [x] Conda
  - [x] nf-core style风格配置文件 (params and profiles)
    - [x] 标准执行(standard)
    - [x] 测试(test)
@@ -46,7 +48,7 @@
  - [HUMAnN2](https://bitbucket.org/biobakery/humann2/wiki/Home) (>=2.8.1): 代谢通路分析，以下脚本被修改（见[Running HUMAnN2 with reduced disk storage](docs/run_humann2.md)）：
    - `humann2.py`
    - `search/nucleotide.py`
- - SRST2: 抗药性分析
+ - [SRST2](https://github.com/katholt/srst2#installation) (=0.2.0): 抗药性分析
 
 ## 使用
 

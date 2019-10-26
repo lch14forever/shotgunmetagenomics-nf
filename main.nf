@@ -3,6 +3,9 @@
 // DSL 2 syntax
 nextflow.preview.dsl=2
 
+// Constants
+def profilers_expected = ['kraken2', 'metaphlan2', 'humann2', 'srst2'] as Set
+
 // help message
 params.help = false
 def helpMessage() {
@@ -44,7 +47,7 @@ def helpMessage() {
       --decont_index            BWA index prefix for the host
 
     Profiler configuration:
-      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2]
+      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2,srst2]
 
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
@@ -57,6 +60,9 @@ def helpMessage() {
     HUMAnN2 arguments:
       --humann2_nucleotide      Path to humann2 chocophlan database
       --humann2_protein         Path to humann2 protein database
+
+    SRST2 arguments:
+      --srst2_ref               Fasta file used for srst2
 
     AWSBatch options:
       --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
@@ -97,7 +103,6 @@ if (params.containsKey('read_path') && params.read_path){
 
 // Profiler sanity checking
 def profilers = [] as Set
-def profilers_expected = ['kraken2', 'metaphlan2', 'humann2'] as Set
 if(params.profilers.getClass() != Boolean){
     def profilers_input = params.profilers.split(',') as Set
     def profiler_diff = profilers_input - profilers_expected
@@ -138,11 +143,17 @@ if (profilers.contains('humann2')){
    ch_humann2_protein = file(params.humann2_protein)
 }
 
+// *SRST2 specific* //
+if (profilers.contains('srst2')){
+   ch_srst2_ref = file(params.srst2_ref)
+}
+
 // import modules
 include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
 include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
 include './modules/profilers_metaphlan2' params(outdir: "$params.outdir")
 include './modules/profilers_humann2' params(outdir: "$params.outdir")
+include './modules/profilers_srst2' params(outdir: "$params.outdir")
 
 // TODO: is there any elegant method to do this?
 include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
@@ -165,5 +176,8 @@ workflow{
     if(profilers.contains('humann2')){
         HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out)
         HUMANN2(ch_humann2_protein, DECONT.out[0].join(HUMANN2_INDEX.out))
+    }
+    if(profilers.contains('srst2')){
+        SRST2(ch_srst2_ref, DECONT.out[0])
     }
 }
