@@ -65,8 +65,8 @@ Note that the pipeline will create the following files in your working directory
 
 ```bash
 work            # Directory containing the nextflow working files
-results         # Finished results (configurable, see below)
-.nextflow_log   # Log file from Nextflow
+pipeline_out    # Finished results (configurable, see below)
+.nextflow.log   # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
