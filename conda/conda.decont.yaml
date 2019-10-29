@@ -1,4 +1,4 @@
-name: shotgunmetagenomics-decont
+name: shotgunMetagenomics_fastp_v0.20.0
 channels:
   - defaults
   - bioconda

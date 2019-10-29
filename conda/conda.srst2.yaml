@@ -1,4 +1,4 @@
-name: shotgunmetagenomics-srst2
+name: shotgunMetagenomics_srst_v0.2.0
 channels:
   - defaults
   - bioconda

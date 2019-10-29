@@ -1,4 +1,4 @@
-name: shotgunmetagenomics-metaphlan2
+name: shotgunMetagenomics_metaphlan2_v2.7.7
 channels:
   - defaults
   - bioconda
