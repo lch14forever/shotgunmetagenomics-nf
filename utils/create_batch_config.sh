@@ -7,7 +7,10 @@ PROJECT_DIR=$(dirname $(dirname $BASE_DIR))
 
 PROFILE=$1
 READ_PATH=$2
-REF_BUCKET=$3
+REF_BUCKET=${3:-s3://csb5-nextflow-ref/}
+AWS_REGION=${4:-ap-southeast-1}
+AWS_QUEUE=${5:-nextflow}
+AWS_WORKDIR=${6:-s3://csb5-nextlfow-work/}
 
 echo "### Run the followings to configure your AWS IAM ###"
 cat ~/.aws/credentials | paste - - -  | grep $PROFILE | cut -f 2- | sed 's/aws_access_key_id = //' | sed 's/aws_secret_access_key = //' | \
@@ -17,7 +20,7 @@ while read k1 k2;do
 done
 
 echo "### Use the following template to run the pipeline (provide --awsregion and --awsqueue) ###"
-echo $PROJECT_DIR/main.nf -params-file pipeline_params.yaml -profile awsbatch -w s3://csb5-nextflow-work/scratch --awsregion ap-southeast-1 --awsqueue nextflow
+echo $PROJECT_DIR/main.nf -params-file pipeline_params.yaml -profile awsbatch -w $AWS_WORKDIR --awsregion $AWS_REGION --awsqueue $AWS_QUEUE
 
 cat <<EOF > pipeline_params.yaml
 read_path          : "$READ_PATH"

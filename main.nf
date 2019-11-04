@@ -78,7 +78,7 @@ if (params.help){
 
 // AWSBatch sanity checking
 if(workflow.profile.contains('awsbatch')){
-    if (!params.containsKey('awsqueue') || !params.containsKey('awsregion')) exit 1, "Specify correct --awsqueue and --awsregion parameters on AWSBatch!"
+    if (!params.awsqueue || !params.awsregion) exit 1, "Specify correct --awsqueue and --awsregion parameters on AWSBatch!"
     //if (!params.outdir.startsWith('s3')) exit 1, "Specify S3 URLs for outdir parameters on AWSBatch!"
 }
 
