@@ -10,7 +10,7 @@ READ_PATH=$2
 REF_BUCKET=${3:-s3://csb5-nextflow-ref/}
 AWS_REGION=${4:-ap-southeast-1}
 AWS_QUEUE=${5:-nextflow}
-AWS_WORKDIR=${6:-s3://csb5-nextlfow-work/}
+AWS_WORKDIR=${6:-s3://csb5-nextflow-work/}
 
 echo "### Run the followings to configure your AWS IAM ###"
 cat ~/.aws/credentials | paste - - -  | grep $PROFILE | cut -f 2- | sed 's/aws_access_key_id = //' | sed 's/aws_secret_access_key = //' | \
@@ -20,7 +20,7 @@ while read k1 k2;do
 done
 
 echo "### Use the following template to run the pipeline (provide --awsregion and --awsqueue) ###"
-echo $PROJECT_DIR/main.nf -params-file pipeline_params.yaml -profile awsbatch -w $AWS_WORKDIR --awsregion $AWS_REGION --awsqueue $AWS_QUEUE
+echo $PROJECT_DIR/main.nf -params-file pipeline_params.yaml -profile awsbatch -bucket-dir $AWS_WORKDIR --awsregion $AWS_REGION --awsqueue $AWS_QUEUE
 
 cat <<EOF > pipeline_params.yaml
 read_path          : "$READ_PATH"
@@ -32,4 +32,5 @@ metaphlan2_index   : 'mpa_v20_m200'
 metaphlan2_pkl     : 'mpa_v20_m200.pkl'
 humann2_nucleotide : '$REF_BUCKET/humann2/chocophlan'
 humann2_protein    : '$REF_BUCKET/humann2/uniref'
+srst2_ref          : '$REF_BUCKET/srst2/ARGannot_r3.fasta'
 EOF
