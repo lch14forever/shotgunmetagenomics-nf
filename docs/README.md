@@ -3,10 +3,7 @@
 The nf-core/shotgunmetagenomics documentation is split into the following files:
 
 1. [Installation](install.md)
-2. Pipeline configuration
-    * [Local installation](https://nf-co.re/usage/local_installation)
-    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    * [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3. [Running the pipeline](usage.md)
-4. [Output and how to interpret the results](output.md)
-5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+1. [Reference databases](database.md)
+1. [Running the pipeline](usage.md)
+1. [Output and how to interpret the results](output.md)
+1. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
