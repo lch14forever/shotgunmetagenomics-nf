@@ -6,13 +6,15 @@ params.outdir = './'
 process DECONT {
     tag "${prefix}"
     publishDir "$params.outdir/decont", mode: 'copy'
+    // on AWS batch the input are downloaded to a local tmp folder
+    afterScript { workflow.profile == 'awsbatch'? "rm -v -f `readlink -f $reads1` `readlink -f $reads2`;" : 'echo "Local"'} 
 
     input:
     file index_path
     tuple prefix, file(reads1), file(reads2)
 
     output:
-    tuple prefix, file("${prefix}*1.fastq.gz"), file("${prefix}*2.fastq.gz")
+    tuple prefix, file("${prefix}*fastpdecont_1.fastq.gz"), file("${prefix}*fastpdecont_2.fastq.gz")
     tuple file("${prefix}.html"), file("${prefix}.json")
 
     script:
