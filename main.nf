@@ -43,6 +43,7 @@ def helpMessage() {
       --outdir                  Output directory [Default: ./pipeline_output/]
 
     Decontamination arguments:
+      --decont_off              Skip trimming and decontamination [Default: false]
       --decont_ref_path         Path to the host reference database
       --decont_index            BWA index prefix for the host
 
@@ -113,10 +114,12 @@ if(params.profilers.getClass() != Boolean){
 }
 
 // *Decont specific (remove if you don't need decont)* //
-if (!params.containsKey('decont_refpath') | !params.containsKey('decont_index')){
-    exit 1, "[Pipeline error] Please provide the BWA index path for the host using `--decont_refpath` and `--decont_index`!\n"
+if (!params.decont_off){
+   if (!params.containsKey('decont_refpath') | !params.containsKey('decont_index')){
+       exit 1, "[Pipeline error] Please provide the BWA index path for the host using `--decont_refpath` and `--decont_index`!\n"
+   }
+   ch_bwa_idx = file(params.decont_refpath)
 }
-ch_bwa_idx = file(params.decont_refpath)
 
 // *Kraken2 specific* //
 if (profilers.contains('kraken2')){
@@ -162,22 +165,27 @@ include SPLIT_PROFILE as SPLIT_KRAKEN2 from './modules/split_tax_profile' params
 
 // processes
 workflow{
-    DECONT(ch_bwa_idx, ch_reads)
+    if(!params.decont_off){
+	DECONT(ch_bwa_idx, ch_reads)
+	ch_reads_qc = DECONT.out[0]
+    }else{
+        ch_reads_qc = ch_reads
+    }
 
     if(profilers.contains('kraken2')){
-        KRAKEN2(ch_kraken_idx, DECONT.out[0])
+        KRAKEN2(ch_kraken_idx, ch_reads_qc)
         BRACKEN(ch_kraken_idx, KRAKEN2.out[1], Channel.from('s', 'g'))
         SPLIT_KRAKEN2(KRAKEN2.out[0])
     }
     if(profilers.contains('metaphlan2')){
-        METAPHLAN2(ch_metaphlan2_idx, DECONT.out[0])
+        METAPHLAN2(ch_metaphlan2_idx, ch_reads_qc)
         SPLIT_METAPHLAN2(METAPHLAN2.out[0])
     }
     if(profilers.contains('humann2')){
         HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out)
-        HUMANN2(ch_humann2_protein, DECONT.out[0].join(HUMANN2_INDEX.out))
+        HUMANN2(ch_humann2_protein, ch_reads_qc.join(HUMANN2_INDEX.out))
     }
     if(profilers.contains('srst2')){
-        SRST2(ch_srst2_ref, DECONT.out[0])
+        SRST2(ch_srst2_ref, ch_reads_qc)
     }
 }
