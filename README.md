@@ -29,7 +29,10 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
    - [x] AWS batch (awsbatch)
    - [ ] AWS HPC
   - [ ] Add nf-core style documentation
-
+   - [x] [Output description](docs/output.md)
+   - [ ] Installation
+   - [ ] Usage
+   - [ ] Reference databases
 
 ## Features
  - The new DSL2 syntax for pipeline modularity and reusabiligy
