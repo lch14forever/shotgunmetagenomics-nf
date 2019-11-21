@@ -14,7 +14,6 @@ process HUMANN2_INDEX {
 
     script:
     """
-    echo $PATH
     touch customized.ffn
     mkdir index
 
@@ -50,7 +49,6 @@ process HUMANN2 {
 
     script:
     """
-    echo $PATH
     zcat $reads1 $reads2 | \\
     sed 's/ //g' | \\
     bowtie2 -p $task.cpus -x ${index}/customized.ffn -U - | \\

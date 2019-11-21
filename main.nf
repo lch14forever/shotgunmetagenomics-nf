@@ -113,7 +113,7 @@ if(params.profilers.getClass() != Boolean){
     }
 }
 
-// *Decont specific (remove if you don't need decont)* //
+// *Decont specific* //
 if (!params.decont_off){
    if (!params.containsKey('decont_refpath') | !params.containsKey('decont_index')){
        exit 1, "[Pipeline error] Please provide the BWA index path for the host using `--decont_refpath` and `--decont_index`!\n"

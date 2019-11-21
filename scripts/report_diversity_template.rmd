@@ -1,0 +1,89 @@
+---
+title: "Diversity report"
+author: "CSB5 Shotgunmetagenomics-nf"
+
+output:
+  html_document:
+    df_print: paged
+
+params:
+  metadata: NA
+  profile_list: NA
+  presence_absence_thre: 0.1
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Libraries
+
+```{r libraries, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(vegan)
+library(dplyr)
+library(purrr)
+library(readr)
+library(stringr)
+library(plotly)
+```
+
+## Utility constants and functions defined
+```{r functions}
+## A set of colors
+color.list <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF", "#3C5488FF", "#F39B7FFF", "#8491B4FF",
+                "#91D1C2FF", "#B09C85FF", "#FAFD7CFF", "#82491EFF", "#B7E4F9FF", "#FB6467FF",
+                "#526E2DFF", "#E762D7FF", "#FAE48BFF", "#A6EEE6FF", "#95CC5EFF")
+## ggplot2 preset theme
+figtheme <- theme_classic() +
+  theme(text = element_text(size=23,face='bold'),
+        axis.title.y=element_text(margin=margin(0,15,0,0)),axis.title.x=element_text(margin=margin(15,0,0,0)),
+        plot.margin = unit(c(1,1,1,1), "cm"),
+        plot.title = element_text(margin=margin(0,0,15,0), hjust=0.5))
+theme_set(figtheme)
+## Auxilary function to merge two profiles
+merge2 <- function(x, y){
+  aux <- function(x) read_tsv(x, col_names=c("tax", str_remove(basename(x), '[\\._\\-].*')))
+  if(is.character(x)){
+    dat.x <- aux(x)
+  }else{
+    dat.x <- x
+  }
+  dat.y <- aux(y)
+  full_join(dat.x, dat.y)  
+}
+```
+
+## Read and merge profiles
+
+```{r tax, message=FALSE}
+profile.list <- read_lines(params$profile_list)
+tax.profile <- reduce(profile.list, merge2)
+tax.profile <- tibble::column_to_rownames(tax.profile, 'tax')
+
+tax.profile[is.na(tax.profile)|tax.profile<params$presence_absence_thre] <- 0 ## impute NAs and set low abundance taxon to 0
+tax.profile <- tax.profile[rowSums(tax.profile) != 0, ] ## remove empty taxa
+tax.profile
+```
+
+## $\beta$-diversity overview with Bray-Curtis dissimilarity
+
+```{r beta_pcoa}
+distance <- vegdist(t(tax.profile))
+cmds <- cmdscale(distance, eig = TRUE)
+perc <- (cmds$eig/sum(cmds$eig))[1:2]*100
+plot.dat <- data.frame(cmds$points)
+
+p <- ggplot(plot.dat, aes(x=X1, y=X2)) + 
+    geom_density_2d(color='grey') + 
+    geom_point(size=3) + 
+    scale_color_manual(values=color.list[c(1,4)]) + 
+    labs(x=sprintf('PCoA 1 [%.1f%%]', perc[1]), y=sprintf('PCoA 2 [%.1f%%]', perc[2])) 
+ggplotly(p)
+```
+
+## Analysis session information
+
+```{r}
+sessionInfo()
+```
