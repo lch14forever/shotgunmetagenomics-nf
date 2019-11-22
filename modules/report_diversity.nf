@@ -21,7 +21,7 @@ process REPORT_DIVERSITY {
     beforeScript = { ". /mnt/software/unstowable/miniconda3-4.6.14/etc/profile.d/conda.sh; conda activate shotgunMetagenomics_r_v3.6.0 " }
     input:
     file(profiles)
-    //file(metadata)
+    file(metadata)
     file(template)
     
     output:
@@ -30,7 +30,7 @@ process REPORT_DIVERSITY {
     script:
     """
     Rscript -e \'rmarkdown::render(\"$template\", \
-    params = list( profile_list = \"$profiles\" ),\
+    params = list( profile_list = \"$profiles\", metadata = \"$metadata\"),\
     output_file = \"${params.project}.html\")\'
     """
 }
@@ -41,6 +41,6 @@ workflow report {
 	.map {x -> x.path}
 	.collectFile(name: "${params.profiler}.output.txt", newLine: true)
     ch_template = Channel.fromPath("$params.template", checkIfExists: true)
-
-    REPORT_DIVERSITY(ch_tax, Channel.fromPath("$params.template"))
+    ch_metadata = Channel.fromPath("$params.metadata", checkIfExists: true)
+    REPORT_DIVERSITY(ch_tax, ch_metadata, ch_template)
 }

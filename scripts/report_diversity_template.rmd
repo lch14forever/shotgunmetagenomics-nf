@@ -5,18 +5,22 @@ author: "CSB5 Shotgunmetagenomics-nf"
 output:
   html_document:
     df_print: paged
+    code_folding: hide
 
 params:
   metadata: NA
   profile_list: NA
   presence_absence_thre: 0.1
-  
+  index_column: 1
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-## Libraries
+
+# Dependencies
+
+Libraries
 
 ```{r libraries, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -28,7 +32,7 @@ library(stringr)
 library(plotly)
 ```
 
-## Utility constants and functions defined
+Utility constants and functions defined
 ```{r functions}
 ## A set of colors
 color.list <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF", "#3C5488FF", "#F39B7FFF", "#8491B4FF",
@@ -54,9 +58,9 @@ merge2 <- function(x, y){
 }
 ```
 
-## Read and merge profiles
+# Load data
 
-```{r tax, message=FALSE}
+```{r load, message=FALSE, cols.print=6, rows.print=10}
 profile.list <- read_lines(params$profile_list)
 tax.profile <- reduce(profile.list, merge2)
 tax.profile <- tibble::column_to_rownames(tax.profile, 'tax')
@@ -64,26 +68,117 @@ tax.profile <- tibble::column_to_rownames(tax.profile, 'tax')
 tax.profile[is.na(tax.profile)|tax.profile<params$presence_absence_thre] <- 0 ## impute NAs and set low abundance taxon to 0
 tax.profile <- tax.profile[rowSums(tax.profile) != 0, ] ## remove empty taxa
 tax.profile
+
+if(params$metadata!='NA'){
+  metadata <- read_tsv(params$metadata)
+  metadata
+}
+```
+# $\alpha$-diversity overview 
+
+## Shannon diversity {.tabset}
+Shannon diversity for a sample with $S$ taxa:
+
+$$H=-\sum_{i=1}^S p_iln(p_i)$$
+
+### Overview
+
+```{r message=FALSE}
+div <- diversity(tax.profile, index='shannon', MARGIN=2)
+p <- ggplot(data.frame(div=div), aes(x=div))+
+  geom_histogram() + 
+  labs(x='Shannon index', y='Count')
+ggplotly(p)
 ```
 
-## $\beta$-diversity overview with Bray-Curtis dissimilarity
+### Sample specific
+
+```{r message=FALSE, fig.height=6, fig.width=20}
+p <- 
+  ggplot(data.frame(div=div, Sample=colnames(tax.profile)), 
+         aes(y=div, x=reorder(Sample, div)))+
+  geom_bar(stat='identity') + 
+  labs(y='Shannon index', x='Sample') + 
+  theme(axis.text.x = element_blank())
+ggplotly(p)
+```
+
+## Simpson diversity {.tabset}
+
+Simpson diversity for a sample with $S$ taxa:
+
+$$D=\frac{1}{\sum_{i=1}^Sp_i^2}$$
+
+### Overview
+```{r message=FALSE}
+div <- diversity(tax.profile, index='simpson', MARGIN=2)
+p <- ggplot(data.frame(div=div), aes(x=div))+
+  geom_histogram() + 
+  labs(x='Simpson index', y='Count')
+ggplotly(p)
+```
+
+### Sample specific
+```{r message=FALSE, fig.height=6, fig.width=20}
+p <- 
+  ggplot(data.frame(div=div, Sample=colnames(tax.profile)), 
+         aes(y=div, x=reorder(Sample, div)))+
+  geom_bar(stat='identity') + 
+  labs(y='Simpson index', x='Sample') + 
+  theme(axis.text.x = element_blank())
+ggplotly(p)
+```
+
+# $\beta$-diversity overview (Bray-Curtis dissimilarity) 
+
+Bray-Curtis Dissimilarity between sample $i$ and $i'$ with $P$ taxa:
+$$Bray_{ii'}=\frac{\sum_{j=1}^P|x_{ij}-x_{i'j}|}{\sum_{j=1}^Px_{ij}+x_{i'j}}$$
 
 ```{r beta_pcoa}
 distance <- vegdist(t(tax.profile))
 cmds <- cmdscale(distance, eig = TRUE)
 perc <- (cmds$eig/sum(cmds$eig))[1:2]*100
 plot.dat <- data.frame(cmds$points)
+if(exists("metadata")){
+  plot.dat <- merge(plot.dat, metadata, by.x=0, by.y=params$index_column, all.x=TRUE)
+}
+```
 
-p <- ggplot(plot.dat, aes(x=X1, y=X2)) + 
+## Overview
+```{r beta_pcoa_plot}
+## sample code, change "Variable" to the column name in your metadata
+p <- ggplot(plot.dat, aes(x=X1, y=X2, col="Variable")) + 
     geom_density_2d(color='grey') + 
     geom_point(size=3) + 
-    scale_color_manual(values=color.list[c(1,4)]) + 
+    scale_color_manual(values=color.list) + 
     labs(x=sprintf('PCoA 1 [%.1f%%]', perc[1]), y=sprintf('PCoA 2 [%.1f%%]', perc[2])) 
 ggplotly(p)
 ```
 
+## PCoA plots with associated metadata {.tabset}
+```{r echo=FALSE, fig.height=6, fig.width=10, results='asis'}
+if(exists("metadata")){
+  tmp <- apply(metadata,2,function(x) length(unique(x))) 
+  headers <- names(tmp)[tmp<length(color.list) & !sapply(metadata, is.numeric)] ## only support those variables with less category than the number of colors; ignore numeric variables
+
+  for (h in headers){
+    cat("###", h, '<br>', '\n')
+    cat('PCoA stratefied by: ', h, '<br>')
+    p <- ggplot(plot.dat, aes_string(x="X1", y="X2", col=h)) + 
+      geom_density_2d(color='grey') + 
+      geom_point(size=3) + 
+      scale_color_manual(values=color.list, na.value='grey') + 
+      labs(x=sprintf('PCoA 1 [%.1f%%]', perc[1]), y=sprintf('PCoA 2 [%.1f%%]', perc[2])) 
+    print(p)
+    cat('\n', '<br>', '\n\n')
+  }
+}else{
+  print("No metadata given.")
+}
+```
+
 ## Analysis session information
 
-```{r}
+```{r echo=FALSE}
 sessionInfo()
 ```
