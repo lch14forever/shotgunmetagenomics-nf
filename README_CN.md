@@ -7,30 +7,6 @@
  - 尽可能提供Dockerfile和Conda YAML文件，运算环境可重复
  - 提供多种环境的配置文件，GIS高性能计算(SGE)，AWS (batch)，AWS Cluster (ignite)
 
-## 开发进程
- - [x] 加入去宿主DNA模块
-   - [x] Docker支持
-   - [x] Conda支持
- - [x] 加入kraken2和bracken
-   - [x] Docker支持
-   - [x] Conda支持
- - [x] 加入MetaPhlAn2
-   - [x] Docker支持（使用Biocontainers的镜像）
-   - [x] Conda支持
- - [x] 加入HUMAnN2
-   - [x] Docker支持（优化的镜像）
-   - [ ] Conda
- - [x] 加入SRST2
-   - [x] Docker支持（使用Biocontainers的镜像）
-   - [x] Conda
- - [x] nf-core style风格配置文件 (params and profiles)
-   - [x] 标准执行(standard)
-   - [x] 测试(test)
-   - [x] GIS集群(gis)
-   - [x] AWS batch (awsbatch)
-   - [ ] AWS HPC
-  - [ ] nf-core风格文档
-
 ## 依赖
 
 ### 主流程
@@ -159,7 +135,7 @@ $ shotgunmetagenomics-nf/main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEU
 同时运行多个分类器
 
 ```sh
-$ shotgunmetagenomics-nf/main.nf -profile gis --profiler kraken2,metaphlan2 --read_path PATH_TO_READS
+$ shotgunmetagenomics-nf/main.nf -profile gis --profilers kraken2,metaphlan2 --read_path PATH_TO_READS
 ```
 
 ## 应用案例

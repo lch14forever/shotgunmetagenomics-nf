@@ -6,29 +6,9 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 [中文文档](README_CN.md)
 
-## Roadmap
- - [x] Add decontamination
-   - [x] Docker
-   - [x] Conda
- - [x] Add kraken2 and bracken
-   - [x] Docker
-   - [x] Conda
- - [x] Add MetaPhlAn2
-   - [x] Docker (using image from biocontainers)
-   - [x] Conda
- - [x] Add HUMAnN2
-   - [x] Docker (customized script)
-   - [ ] Conda
- - [x] Add SRST2
-   - [x] Docker (using image from biocontainers)
-   - [x] Conda
- - [x] Add nf-core style configuration (params and profiles)
-   - [x] Standard execution
-   - [x] Simple test
-   - [x] GIS configuration (using conda)
-   - [x] AWS batch (awsbatch)
-   - [ ] AWS HPC
-  - [ ] Add nf-core style documentation
+## Development plan
+ - [x] Add customized HUMAnN2 to a conda channel
+ - [ ] Add nf-core style documentation
    - [x] [Output description](docs/output.md)
    - [ ] Installation
    - [ ] Usage
@@ -171,7 +151,7 @@ You can specifiy multiple profiles separated by comma, e.g. `-profile docker,tes
 
 Run multiple profilers
 ```sh
-$ shotgunmetagenomics-nf/main.nf -profile gis --profiler kraken2,metaphlan2 --read_path PATH_TO_READS
+$ shotgunmetagenomics-nf/main.nf -profile gis --profilers kraken2,metaphlan2 --read_path PATH_TO_READS
 ```
 
 ## Usage cases
