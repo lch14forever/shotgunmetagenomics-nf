@@ -7,7 +7,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 [中文文档](README_CN.md)
 
 ## Development plan
- - [x] Add customized HUMAnN2 to a conda channel
+ - [ ] Add customized HUMAnN2 to a conda channel
  - [ ] Add nf-core style documentation
    - [x] [Output description](docs/output.md)
    - [ ] Installation
@@ -44,92 +44,10 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
 
 ## Usage
 
-Run using attached testing dataset
+ - [Pipeline parameters](docs/params.md)
+ - [Run on GIS HPC cluster (SGE scheduler)](docs/usage_giscluster.md)
+ - [Run on AWS configured for CSB5](docs/usage_csb5aws.md)
 
-```sh
-$ shotgunmetagenomics-nf/main.nf -profile test
-N E X T F L O W  ~  version 19.09.0-edge
-Launching `./main.nf` [cheesy_volhard] - revision: dc7259a08e
-WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
-executor >  local (8)
-[d4/2492b7] process > DECONT (SRR1950772)  [100%] 2 of 2 ✔
-[3f/d7402d] process > KRAKEN2 (SRR1950772) [100%] 2 of 2 ✔
-[de/a05395] process > BRACKEN (SRR1950772) [100%] 4 of 4 ✔
-Completed at: 02-Oct-2019 16:21:34
-Duration    : 3m 47s
-CPU hours   : 0.5
-Succeeded   : 8
-```
-
-For the full help information, use
-
-```sh
-$ shotgunmetagenomics-nf/main.nf --help
-
-N E X T F L O W  ~  version 19.09.0-edge
-Launching `shotgunmetagenomics-nf/main.nf` [fabulous_feynman] - revision: e8ec2a095b
-WARN: DSL 2 IS AN EXPERIMENTAL FEATURE UNDER DEVELOPMENT -- SYNTAX MAY CHANGE IN FUTURE RELEASE
-###############################################################################
-
-      +++++++++++++++++'++++
-      ++++++++++++++++''+'''
-      ++++++++++++++'''''''+
-      ++++++++++++++''+'++++
-      ++++++++++++++''''++++
-      +++++++++++++'++''++++
-      ++++++++++++++++++++++       ++++++++:,   +++   ++++++++
-      +++++++++++++, +++++++     +++.  .'+++;  +++  :+++   '++
-      ++++++ ``'+`  ++++++++   +++'        ';  +++  +++      +
-      ++++`   +++  +++++++++  +++              +++  +++:
-      ++,  ,+++`  ++++++++++  ++;              +++    ++++
-      +, ;+++  + .++++++++++  +++     .++++++  +++       ++++
-      + `++;  ++  +++++;;+++  +++         +++  +++          '++,
-      + :;   +++, ;++; ;++++  ;++;        +++  +++           +++
-      +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
-      ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
-===============================================================================
-    CSB5 Shotgun Metagenomics Pipeline [version 0.0.1dev]
-Usage:
-The typical command for running the pipeline is as follows:
-  nextflow run /mnt/projects/lich/stooldrug/scratch/shotgunmetagenomics-nf/main.nf  --read_path PATH_TO_READS
-
-Input arguments:
-  --read_path               Path to a folder containing all input fastq files (this will be recursively searched for *fastq.gz/*fq.gz/*fq/*fastq files) [Default: false]
-  --reads                   Glob pattern to match reads, e.g. '/path/to/reads_*{R1,R2}.fq.gz' (this is in conflict with `--read_path`) [Default: false]
-  
-Output arguments:
-  --outdir                  Output directory [Default: ./pipeline_output/]
-
-Decontamination arguments:
-  --decont_ref_path         Path to the host reference database
-  --decont_index            BWA index prefix for the host
-
-Profiler configuration:
-  --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2]
-
-Kraken2 arguments:
-  --kraken2_index           Path to the kraken2 database
-
-MetaPhlAn2 arguments:
-  --metaphlan2_ref_path     Path to the metaphlan2 database
-  --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
-  --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
-
-HUMAnN2 arguments:
-  --humann2_nucleotide      Path to humann2 chocophlan database
-  --humann2_protein         Path to humann2 protein database
-
-AWSBatch options:
-  --awsqueue                The AWSBatch JobQueue that needs to be set when running on AWSBatch
-  --awsregion               The AWS Region for your AWS Batch job to run on
-###############################################################################
-```
-
-Run on GIS cluster
-
-```sh
-$ shotgunmetagenomics-nf/main.nf -profile gis --read_path PATH_TO_READS
-```
 
 Run with docker
 
@@ -144,7 +62,7 @@ Run on AWS batch ([AWS batch configuration tutorial](https://t-neumann.github.io
  - Customized AMI (AWS ECS optimized linux + awscli installed with *miniconda*)
 
 ```sh
-$ shotgunmetagenomics-nf/main.nf -profile test,awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION -w S3_BUCKET --outdir S3_BUCKET 
+$ shotgunmetagenomics-nf/main.nf -profile awsbatch --awsqueue AWSBATCH_QUEUE --awsregion AWS_REGION --bucket-dir S3_BUCKET --outdir S3_BUCKET 
 ```
 
 You can specifiy multiple profiles separated by comma, e.g. `-profile docker,test`.
