@@ -8,6 +8,7 @@ An IAM with all needed permission has been created.
 
 All the databases were stored at `s3://csb5-nextflow-ref/` (`$REF_BUCKET` below)
 
+```
 decont_refpath = "$REF_BUCKET/hg19/"
 decont_index = 'hg19.fa'
 kraken2_index = "$REF_BUCKET/minikraken2_v2_8GB_201904_UPDATE"
@@ -17,6 +18,7 @@ metaphlan2_pkl = 'mpa_v20_m200.pkl'
 humann2_nucleotide = '$REF_BUCKET/humann2/chocophlan'
 humann2_protein = '$REF_BUCKET/humann2/uniref'
 srst2_ref = $REF_BUCKET/srst2/ARGannot_r3.fasta'
+```
 
 ## Run command
 
