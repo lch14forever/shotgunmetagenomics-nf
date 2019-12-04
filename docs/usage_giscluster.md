@@ -6,6 +6,7 @@ Activate with `--profile gis`. This uses miniconda (`/mnt/software/unstowable/mi
 
 ## Databases (assigned when using `--profile gis`)
 
+```
 decont_refpath = '/mnt/genomeDB/genomeIndices/hg19/bwa_index/nucleotide/'
 decont_index   = 'hg19.fa'
 kraken2_index  = '/mnt/genomeDB/misc/softwareDB/kraken2/minikraken2_v2_8GB_201904_UPDATE'
@@ -15,7 +16,7 @@ metaphlan2_pkl     = 'mpa_v20_m200.pkl'
 humann2_nucleotide = '/mnt/genomeDB/misc/softwareDB/humann2/chocophlan/'
 humann2_protein    = '/mnt/genomeDB/misc/softwareDB/humann2/uniref/'
 srst2_ref = '/mnt/genomeDB/misc/softwareDB/srst2/ARGannot_r3.fasta'
-
+```
 
 ## Run command
 
