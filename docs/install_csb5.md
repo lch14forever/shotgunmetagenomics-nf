@@ -67,6 +67,13 @@ Be warned of two important points about this default configuration:
 
 #### 3.1) Software deps: Docker and Singularity 
 
+On a ubuntu machine with root access, docker can be installed with:
+
+```bash
+sudo apt install docker.io
+sudo usermod -aG docker $USER ## logout and login required
+```
+
 Running the pipeline with the option `-with-singularity` or
 `-with-docker` tells Nextflow to enable either
 [Singularity](http://singularity.lbl.gov/) or Docker for this run.
