@@ -40,7 +40,9 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
    - `search/nucleotide.py`
  - [SRST2](https://github.com/katholt/srst2#installation) (=0.2.0): Resistome profiling
 
+## Setup and configuration
 
+ - [Installation instruction](docs/install_csb5.md)
 
 ## Usage
 
