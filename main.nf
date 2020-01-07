@@ -5,6 +5,19 @@ nextflow.preview.dsl=2
 
 // Constants
 def profilers_expected = ['kraken2', 'metaphlan2', 'humann2', 'srst2'] as Set
+def parameters_expected = ['read_path', 'reads', 'outdir',  // input output
+                           'decont_off', 'decont_refpath', 'decont_index',  // decont
+			   'profilers', // profilers
+			   'kraken2_index', // kraken2
+			   'metaphlan2_refpath', 'metaphlan2_index', 'metaphlan2_pkl', // metaphlan2
+			   'humann2_nucleotide', 'humann2_protein', // humann2
+			   'srst2_ref', // srst2
+			   'awsqueue', 'awsregion', // aws
+			   'help', // help
+			   'pipelineVersion', 'pipeline-version', 'tracedir', // defined in nextflow.config
+			   'conda_init', 'conda_activate',   // defined in nextflow.config and conf/conda.config
+			   'max_memory', 'max_cpus', 'max_time'  // defined in conf/base.config
+			  ] as Set
 
 // help message
 params.help = false
@@ -44,7 +57,7 @@ def helpMessage() {
 
     Decontamination arguments:
       --decont_off              Skip trimming and decontamination [Default: false]
-      --decont_ref_path         Path to the host reference database
+      --decont_refpath         Path to the host reference database
       --decont_index            BWA index prefix for the host
 
     Profiler configuration:
@@ -54,7 +67,7 @@ def helpMessage() {
       --kraken2_index           Path to the kraken2 database
 
     MetaPhlAn2 arguments:
-      --metaphlan2_ref_path     Path to the metaphlan2 database
+      --metaphlan2_refpath     Path to the metaphlan2 database
       --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
       --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
 
@@ -76,6 +89,11 @@ if (params.help){
     exit 0
 }
 
+// Parameters sanity checking
+def parameter_diff = params.keySet() - parameters_expected
+if (parameter_diff.size() != 0){
+   exit 1, "[Pipeline error] Parameter(s) $parameter_diff is/are not valid in the pipeline!\n"
+}
 
 // AWSBatch sanity checking
 if(workflow.profile.contains('awsbatch')){
