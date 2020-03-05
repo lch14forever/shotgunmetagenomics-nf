@@ -4,6 +4,8 @@ author: "CSB5 Shotgunmetagenomics-nf"
 
 output:
   html_document:
+    toc: yes
+    toc_depth: 3
     df_print: paged
     code_folding: hide
     number_sections: true
@@ -21,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Dependencies
 
-Libraries
+Load required libraries.
 
 ```{r libraries, message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -31,9 +33,11 @@ library(purrr)
 library(readr)
 library(stringr)
 library(plotly)
+library(reshape2)
 ```
 
-Utility constants and functions defined
+Define functions and constants used in the analysis
+
 ```{r functions}
 ## A set of colors
 color.list <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF", "#3C5488FF", "#F39B7FFF", "#8491B4FF",
@@ -59,9 +63,11 @@ merge2 <- function(x, y){
 }
 ```
 
-# Load data
+# Load data 
 
-```{r load, message=FALSE, cols.print=6, rows.print=10}
+Below is the merged data
+
+```{r load_profile, message=FALSE, cols.print=6, rows.print=10}
 profile.list <- read_lines(params$profile_list)
 tax.profile <- reduce(profile.list, merge2)
 tax.profile <- tibble::column_to_rownames(tax.profile, 'tax')
@@ -69,12 +75,56 @@ tax.profile <- tibble::column_to_rownames(tax.profile, 'tax')
 tax.profile[is.na(tax.profile)|tax.profile<params$presence_absence_thre] <- 0 ## impute NAs and set low abundance taxon to 0
 tax.profile <- tax.profile[rowSums(tax.profile) != 0, ] ## remove empty taxa
 tax.profile
+```
 
+Below is the metadata (if provided)
+
+```{r load_metadata, message=FALSE, cols.print=6, rows.print=10}
 if(params$metadata!='NA'){
   metadata <- read_tsv(params$metadata)
+  tmp <- apply(metadata,2,function(x) length(unique(x))) 
+  headers <- names(tmp)[tmp<length(color.list) & !sapply(metadata, is.numeric)] ## only support those variables with less category than the number of colors; ignore numeric variables
+
   metadata
 }
 ```
+
+## Profile overview (top 15 ranked by mean) {.tabset}
+
+### Overview {-}
+```{r plot_profile, message=FALSE, fig.height=8, fig.width=40}
+means <- rowMeans(tax.profile)
+tax.profile.fil <- tax.profile[means>=sort(means, decreasing = TRUE)[15], ]
+tax.profile.dat <- tibble::rownames_to_column(tax.profile.fil) %>% 
+  melt()
+ggplot(tax.profile.dat, aes(x=variable, y=value, fill=rowname)) + 
+  geom_bar(stat = 'identity') + 
+  scale_fill_manual(values=color.list) + 
+  theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1)) +
+  labs(x="Samples", y="Relative abudances (%)")
+```
+
+
+```{r echo=FALSE, fig.height=8, fig.width=40, results='asis'}
+if(exists("metadata")){
+  tmp <- merge(tax.profile.dat, metadata, by.x=2, by.y=params$index_column, all.x=TRUE)
+  for (h in headers){
+    cat("###", h, '<br>', '{-}', '\n')
+    cat('Diversity stratefied by: ', h, '<br>')
+    p <- ggplot(tmp, aes(x=variable, y=value, fill=rowname)) + 
+      geom_bar(stat = 'identity') + 
+      scale_fill_manual(values=color.list, na.value='grey') + 
+      theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1)) +
+      labs(x="Samples", y="Relative abudances (%)") + 
+      facet_grid(as.formula(paste("~", h)), scales = "free_x", space="free")
+    print(p)
+    cat('\n', '<br>', '\n\n')
+  }
+}else{
+  print("No metadata given.")
+}
+```
+
 # $\alpha$-diversity overview 
 
 ## Shannon diversity {.tabset}
@@ -82,26 +132,35 @@ Shannon diversity for a sample with $S$ taxa:
 
 $$H=-\sum_{i=1}^S p_iln(p_i)$$
 
-### Overview
+### Overview {-}
 
 ```{r message=FALSE}
-div <- diversity(tax.profile, index='shannon', MARGIN=2)
-p <- ggplot(data.frame(div=div), aes(x=div))+
+div <- data.frame(div = diversity(tax.profile, index='shannon', MARGIN=2))
+p <- ggplot(div, aes(x=div))+
   geom_histogram() + 
   labs(x='Shannon index', y='Count')
 ggplotly(p)
 ```
 
-### Sample specific
-
-```{r message=FALSE, fig.height=6, fig.width=20}
-p <- 
-  ggplot(data.frame(div=div, Sample=colnames(tax.profile)), 
-         aes(y=div, x=reorder(Sample, div)))+
-  geom_bar(stat='identity') + 
-  labs(y='Shannon index', x='Sample') + 
-  theme(axis.text.x = element_blank())
-ggplotly(p)
+```{r echo=FALSE, fig.height=6, fig.width=10, results='asis'}
+if(exists("metadata")){
+  div.dat <- merge(div, metadata, by.x=0, by.y=params$index_column, all.x=TRUE)
+  
+  for (h in headers){
+    cat("###", h, '<br>', '{-}', '\n')
+    cat('Diversity stratefied by: ', h, '<br>')
+    p <- ggplot(div.dat, aes_string(x=h, y="div", fill=h)) + 
+      geom_boxplot() + 
+      geom_jitter(size=1) + 
+      scale_fill_manual(values=color.list, na.value='grey') + 
+      theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1)) + 
+      labs(x=NULL, y="Diversity") 
+    print(p)
+    cat('\n', '<br>', '\n\n')
+  }
+}else{
+  print("No metadata given.")
+}
 ```
 
 ## Simpson diversity {.tabset}
@@ -110,7 +169,7 @@ Simpson diversity for a sample with $S$ taxa:
 
 $$D=\frac{1}{\sum_{i=1}^Sp_i^2}$$
 
-### Overview
+### Overview {-}
 ```{r message=FALSE}
 div <- diversity(tax.profile, index='simpson', MARGIN=2)
 p <- ggplot(data.frame(div=div), aes(x=div))+
@@ -119,16 +178,60 @@ p <- ggplot(data.frame(div=div), aes(x=div))+
 ggplotly(p)
 ```
 
-### Sample specific
-```{r message=FALSE, fig.height=6, fig.width=20}
-p <- 
-  ggplot(data.frame(div=div, Sample=colnames(tax.profile)), 
-         aes(y=div, x=reorder(Sample, div)))+
-  geom_bar(stat='identity') + 
-  labs(y='Simpson index', x='Sample') + 
-  theme(axis.text.x = element_blank())
+```{r echo=FALSE, fig.height=6, fig.width=10, results='asis'}
+if(exists("metadata")){
+  div.dat <- merge(div, metadata, by.x=0, by.y=params$index_column, all.x=TRUE)
+  
+  for (h in headers){
+    cat("###", h, '<br>', '{-}', '\n')
+    cat('Diversity stratefied by: ', h, '<br>')
+    p <- ggplot(div.dat, aes_string(x=h, y="div", fill=h)) + 
+      geom_boxplot() + 
+      geom_jitter(size=1) + 
+      scale_fill_manual(values=color.list, na.value='grey') + 
+      theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1)) + 
+      labs(x=NULL, y="Diversity") 
+    print(p)
+    cat('\n', '<br>', '\n\n')
+  }
+}else{
+  print("No metadata given.")
+}
+```
+
+
+## Richness {.tabset}
+
+### Overview {-}
+```{r message=FALSE}
+rich <- specnumber(tax.profile, MARGIN=2)
+p <- ggplot(data.frame(rich=rich), aes(x=rich))+
+  geom_histogram() + 
+  labs(x='Richness', y='Count')
 ggplotly(p)
 ```
+
+```{r echo=FALSE, fig.height=6, fig.width=10, results='asis'}
+if(exists("metadata")){
+  rich.dat <- merge(rich, metadata, by.x=0, by.y=params$index_column, all.x=TRUE)
+  
+  for (h in headers){
+    cat("###", h, '<br>', '{-}', '\n')
+    cat('Diversity stratefied by: ', h, '<br>')
+    p <- ggplot(rich.dat, aes_string(x=h, y="rich", fill=h)) + 
+      geom_boxplot() + 
+      geom_jitter(size=1) + 
+      scale_fill_manual(values=color.list, na.value='grey') + 
+      theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1)) + 
+      labs(x=NULL, y="Richness") 
+    print(p)
+    cat('\n', '<br>', '\n\n')
+  }
+}else{
+  print("No metadata given.")
+}
+```
+
 
 # $\beta$-diversity overview (Bray-Curtis dissimilarity) 
 
@@ -159,11 +262,9 @@ ggplotly(p)
 ## PCoA plots with associated metadata {.tabset}
 ```{r echo=FALSE, fig.height=6, fig.width=10, results='asis'}
 if(exists("metadata")){
-  tmp <- apply(metadata,2,function(x) length(unique(x))) 
-  headers <- names(tmp)[tmp<length(color.list) & !sapply(metadata, is.numeric)] ## only support those variables with less category than the number of colors; ignore numeric variables
 
   for (h in headers){
-    cat("###", h, '<br>', '\n')
+    cat("###", h, '<br>', '{-}', '\n')
     cat('PCoA stratefied by: ', h, '<br>')
     p <- ggplot(plot.dat, aes_string(x="X1", y="X2", col=h)) + 
       geom_density_2d(color='grey') + 
@@ -178,7 +279,7 @@ if(exists("metadata")){
 }
 ```
 
-## Analysis session information
+# Analysis session information
 
 ```{r echo=FALSE}
 sessionInfo()

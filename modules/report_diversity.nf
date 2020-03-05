@@ -18,7 +18,7 @@ process REPORT_DIVERSITY {
     publishDir "${params.outdir}/report_diversity_${params.profiler}_out", mode: 'copy'
     stageInMode "copy"
     
-    beforeScript = { ". /mnt/software/unstowable/miniconda3-4.6.14/etc/profile.d/conda.sh; conda activate shotgunMetagenomics_r_v3.6.0 " }
+    // beforeScript = { ". /mnt/software/unstowable/miniconda3-4.6.14/etc/profile.d/conda.sh; conda activate shotgunMetagenomics_r_v3.6.0 " }
     input:
     file(profiles)
     file(metadata)
