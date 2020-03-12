@@ -4,19 +4,19 @@
 nextflow.preview.dsl=2
 
 // Constants
-def profilers_expected = ['kraken2', 'metaphlan2', 'humann2', 'srst2'] as Set
-def parameters_expected = ['read_path', 'reads', 'outdir',  // input output
-                           'decont_off', 'decont_refpath', 'decont_index',  // decont
-			   'profilers', // profilers
-			   'kraken2_index', // kraken2
-			   'metaphlan2_refpath', 'metaphlan2_index', 'metaphlan2_pkl', // metaphlan2
-			   'humann2_nucleotide', 'humann2_protein', // humann2
-			   'srst2_ref', // srst2
-			   'awsqueue', 'awsregion', // aws
-			   'help', // help
-			   'pipelineVersion', 'pipeline-version', 'tracedir', // defined in nextflow.config
-			   'conda_init', 'conda_activate',   // defined in nextflow.config and conf/conda.config
-			   'max_memory', 'max_cpus', 'max_time'  // defined in conf/base.config
+def profilers_expected = ['kraken2', 'metaphlan2', 'humann2', 'srst2', 'strainphlan'] as Set
+def parameters_expected = ['read_path', 'reads', 'outdir',                              // input output
+                           'decont_off', 'decont_refpath', 'decont_index',              // decont
+			   'profilers',                                                 // profilers
+			   'kraken2_index',                                             // kraken2
+			   'metaphlan2_refpath', 'metaphlan2_index', 'metaphlan2_pkl',  // metaphlan2
+			   'humann2_nucleotide', 'humann2_protein',                     // humann2
+			   'srst2_ref',                                                 // srst2
+			   'awsqueue', 'awsregion',                                     // aws
+			   'help',                                                      // help
+			   'pipelineVersion', 'pipeline-version', 'tracedir',           // defined in nextflow.config
+			   'conda_init', 'conda_activate',                              // defined in nextflow.config and conf/conda.config
+			   'max_memory', 'max_cpus', 'max_time'                         // defined in conf/base.config
 			  ] as Set
 
 // help message
@@ -155,6 +155,13 @@ if (profilers.contains('metaphlan2')){
    ch_metaphlan2_idx = file(params.metaphlan2_refpath)
 }
 
+// *StrainPhlAn specific* //
+if (profilers.contains('strainphlan')){
+   if (!profilers.contains('metaphlan2')){
+       exit 1, "[Pipeline error] MetaPhlAn2 required (e.g. `--profilers metaphlan2,strainphlan`)!\n"
+   }
+}
+
 // *HUMAnN2 specific* //
 if (profilers.contains('humann2')){
    if (!profilers.contains('metaphlan2')){
@@ -199,8 +206,12 @@ workflow{
         METAPHLAN2(ch_metaphlan2_idx, ch_reads_qc)
         SPLIT_METAPHLAN2(METAPHLAN2.out[0])
     }
+    if(profilers.contains('strainphlan')){
+	SAMPLE2MARKER(METAPHLAN2.out[1])
+	STRAINPHLAN(ch_metaphlan2_idx, SAMPLE2MARKER.out.collect())
+    }
     if(profilers.contains('humann2')){
-        HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out)
+        HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out[0])
         HUMANN2(ch_humann2_protein, ch_reads_qc.join(HUMANN2_INDEX.out))
     }
     if(profilers.contains('srst2')){

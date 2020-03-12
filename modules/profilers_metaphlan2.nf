@@ -12,7 +12,7 @@ process METAPHLAN2 {
 
     output:
     tuple prefix, file("${prefix}.metaphlan2.tax")
-    // tuple prefix, file("${prefix}.metaphlan2.sam.bz2") // might be needed for strainphlan in the future
+    tuple prefix, file("${prefix}.metaphlan2.sam.bz2") 
     
     script:
     """
@@ -25,4 +25,46 @@ process METAPHLAN2 {
     --input_type multifastq \\
     > ${prefix}.metaphlan2.tax 
     """
+}
+
+process SAMPLE2MARKER {
+    tag "${prefix}"
+    publishDir "$params.outdir/strainphlan_out", mode: 'copy'
+
+    input:
+    tuple prefix, file(metaphlan2_sam)
+
+    output:
+    file "${prefix}.metaphlan2.markers"
+
+    script:
+    """
+    sample2markers.py \\
+    --ifn_samples $metaphlan2_sam \\
+    --input_type sam \\
+    --output_dir .
+    """    
+}
+
+process STRAINPHLAN {
+    tag ""
+    publishDir "$params.outdir/strainphlan_out", mode: 'copy'
+
+    input:
+    file index_path
+    file(metaphlan2_markers)
+
+    output:
+    file "results"
+
+    script:
+    """
+    strainphlan.py \\
+    --ifn_samples ${metaphlan2_markers} \\
+    --output_dir results \\
+    --nprocs_main $task.cpus \\
+    --mpa_pkl ${index_path}/${params.pkl} \\
+    --relaxed_parameters3
+    """    
+    
 }
