@@ -13,6 +13,7 @@ and processes data using the following steps:
 - [Kraken2](#kraken2) - Reads classification with Kraken2
 - [Bracken](#bracken) - Taxonomic profiling using Bracken
 - [MetaPhlAn2](#metaphlan2) - Taxonomic profiling using MetaPhlAn2
+- [StrainPhlAn](#strainphlan) - Strain profiling
 - [HUMAnN2](#humann2) - Pathway profiling using HUMAnN2
 - [SRST2](#srst2) - Resistome profiling with SRST2
 
@@ -62,6 +63,16 @@ This step takes the Fastp output, maps the reads to the host reference genome pr
   * Tab-delimited text file for species level relative abundances
 
 
+## StrainPhlAn
+
+[StrainPhlAn](https://bitbucket.org/biobakery/biobakery/wiki/strainphlan) is a strain analysis workflow based on SNP.
+
+**Output directory: `pipeline_output/strainphlan_out`**
+
+* `sample.metaphlan2.markers`
+  * Marker files for each sample
+
+
 ## MetaPhlAn2
 
 [MetaPhlAn2](https://bitbucket.org/biobakery/metaphlan2/) estimates relative abundances of taxa by mapping reads to clade-specific marker genes.
@@ -75,6 +86,7 @@ This step takes the Fastp output, maps the reads to the host reference genome pr
 
 * `sample.[dpcofgs].tsv`
  * Plain text files for taxonomic profile at *d*omain, *p*hylum, *c*lass, *o*rder, *f*amily, *g*enus, *s*pecies, respectively
+
 
 ## HUMAnN2
 
