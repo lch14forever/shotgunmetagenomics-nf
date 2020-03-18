@@ -49,7 +49,7 @@ This is a [Nextflow](https://www.nextflow.io/) re-implementation of the [origina
  - [Pipeline parameters](docs/params.md)
  - [Run on GIS HPC cluster (SGE scheduler)](docs/usage_giscluster.md)
  - [Run on AWS configured for CSB5](docs/usage_csb5aws.md)
-
+ - [Run on NSCC](docs/usage_nscc.md)
 
 Run with docker
 
