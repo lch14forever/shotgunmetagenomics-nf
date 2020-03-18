@@ -1,4 +1,4 @@
-ll # Run shotgunmetagenomics pipeline on NSCC HPC
+# Run shotgunmetagenomics pipeline on NSCC HPC
 
 ## NSCC configuration profile
 
