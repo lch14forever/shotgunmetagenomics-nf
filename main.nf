@@ -112,7 +112,7 @@ if (params.containsKey('read_path') && params.containsKey('reads') && params.rea
 }
 if (params.containsKey('read_path') && params.read_path){
    ch_reads = Channel
-        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*f*q*'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
+        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*{fastq,fastq.gz,fq,fq.gz}'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
 } else if (params.containsKey('reads') && params.reads) {
    ch_reads = Channel
         .fromFilePairs(params.reads, flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
@@ -177,11 +177,12 @@ if (profilers.contains('srst2')){
 }
 
 // import modules
-include './modules/decont' params(index: "$params.decont_index", outdir: "$params.outdir")
-include './modules/profilers_kraken2_bracken' params(outdir: "$params.outdir")
-include './modules/profilers_metaphlan2' params(outdir: "$params.outdir")
-include './modules/profilers_humann2' params(outdir: "$params.outdir")
-include './modules/profilers_srst2' params(outdir: "$params.outdir")
+
+include { DECONT } from './modules/decont' addParams(index: "$params.decont_index", outdir: "$params.outdir")
+include { KRAKEN2; BRACKEN } from './modules/profilers_kraken2_bracken' addParams(outdir: "$params.outdir")
+include { METAPHLAN2; SAMPLE2MARKER; STRAINPHLAN } from './modules/profilers_metaphlan2' addParams(outdir: "$params.outdir")
+include { HUMANN2; HUMANN2_INDEX } from './modules/profilers_humann2' addParams(outdir: "$params.outdir")
+include { SRST2 } from './modules/profilers_srst2' addParams(outdir: "$params.outdir")
 
 // TODO: is there any elegant method to do this?
 include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
