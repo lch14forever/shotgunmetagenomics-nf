@@ -8,6 +8,7 @@ PROJECT_DIR=$(dirname $(dirname $BASE_DIR))
 PROFILE=$1
 READ_PATH=$2
 REF_BUCKET=${3:-s3://csb5-nextflow-ref/}
+REF_BUCKET=${REF_BUCKET%%/}
 AWS_REGION=${4:-ap-southeast-1}
 AWS_QUEUE=${5:-nextflow}
 AWS_WORKDIR=${6:-s3://csb5-nextflow-work/}
@@ -28,7 +29,6 @@ decont_refpath     : "$REF_BUCKET/hg19/"
 decont_index       : 'hg19.fa'
 kraken2_index      : "$REF_BUCKET/minikraken2_v2_8GB_201904_UPDATE"
 metaphlan2_refpath : "$REF_BUCKET/metaphlan2/"
-metaphlan2_index   : 'mpa_v20_m200'
 metaphlan2_pkl     : 'mpa_v20_m200.pkl'
 humann2_nucleotide : '$REF_BUCKET/humann2/chocophlan'
 humann2_protein    : '$REF_BUCKET/humann2/uniref'

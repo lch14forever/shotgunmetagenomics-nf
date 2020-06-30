@@ -9,7 +9,7 @@ def parameters_expected = ['read_path', 'reads', 'outdir',                      
                            'decont_off', 'decont_refpath', 'decont_index',              // decont
 			   'profilers',                                                 // profilers
 			   'kraken2_index',                                             // kraken2
-			   'metaphlan2_refpath', 'metaphlan2_index', 'metaphlan2_pkl',  // metaphlan2
+			   'metaphlan2_refpath', 'metaphlan2_pkl',                      // metaphlan2
 			   'humann2_nucleotide', 'humann2_protein',                     // humann2
 			   'srst2_ref',                                                 // srst2
 			   'awsqueue', 'awsregion',                                     // aws
@@ -68,7 +68,6 @@ def helpMessage() {
 
     MetaPhlAn2 arguments:
       --metaphlan2_refpath     Path to the metaphlan2 database
-      --metaphlan2_index        Bowtie2 index prefix for the marker genes [Default: mpa_v20_m200]
       --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
 
     HUMAnN2 arguments:
@@ -149,8 +148,8 @@ if (profilers.contains('kraken2')){
 
 // *MetaPhlAn2 specific* //
 if (profilers.contains('metaphlan2')){
-   if (!params.containsKey('metaphlan2_index') | !params.containsKey('metaphlan2_refpath') | !params.containsKey('metaphlan2_pkl')){
-       exit 1, "[Pipeline error] Please provide the metaphlan2 index path using `--metaphlan2_refpath`, `--metaphlan2_pkl` and `--metaphlan2_index`!\n"
+   if ( !params.containsKey('metaphlan2_refpath') ){
+       exit 1, "[Pipeline error] Please provide the metaphlan2 index path using `--metaphlan2_refpath`!\n"
    }
    ch_metaphlan2_idx = file(params.metaphlan2_refpath)
 }
@@ -159,6 +158,9 @@ if (profilers.contains('metaphlan2')){
 if (profilers.contains('strainphlan')){
    if (!profilers.contains('metaphlan2')){
        exit 1, "[Pipeline error] MetaPhlAn2 required (e.g. `--profilers metaphlan2,strainphlan`)!\n"
+   }
+   if (!params.containsKey('metaphlan2_pkl')){
+       exit 1, "[Pipeline error] Please provide the metaphlan2 metadata using `--metaphlan2_pkl`!\n"
    }
 }
 
