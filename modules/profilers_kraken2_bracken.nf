@@ -21,18 +21,14 @@ process KRAKEN2 {
     --paired \\
     --threads $task.cpus \\
     --output ${prefix}.kraken2.out \\
-    --report ${prefix}.kraken2.tax \\
-    $reads1 $reads2 \\
-    --use-mpa-style 
-
-    ### run again for bracken
-    kraken2 \\
-    --db $index_path \\
-    --paired \\
-    --threads $task.cpus \\
     --report ${prefix}.kraken2.report \\
-    $reads1 $reads2 \\
-    --output -
+    $reads1 $reads2 
+
+    ### Convert kraken report to mpa file
+    kreport2mpa.py \\
+     -r ${prefix}.kraken2.report \\
+     -o ${prefix}.kraken2.tax \\
+     --no-intermediate-ranks
 
     ### gzip ${prefix}.kraken2.out
     rm ${prefix}.kraken2.out

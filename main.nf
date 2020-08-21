@@ -187,8 +187,8 @@ include { HUMANN2; HUMANN2_INDEX } from './modules/profilers_humann2' addParams(
 include { SRST2 } from './modules/profilers_srst2' addParams(outdir: "$params.outdir")
 
 // TODO: is there any elegant method to do this?
-include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
-include SPLIT_PROFILE as SPLIT_KRAKEN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
+include { SPLIT_PROFILE as SPLIT_METAPHLAN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
+include { SPLIT_PROFILE as SPLIT_KRAKEN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
    
 
 // processes
