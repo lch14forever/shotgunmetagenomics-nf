@@ -111,10 +111,10 @@ if (params.containsKey('read_path') && params.containsKey('reads') && params.rea
 }
 if (params.containsKey('read_path') && params.read_path){
    ch_reads = Channel
-        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*{fastq,fastq.gz,fq,fq.gz}'], flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
+        .fromFilePairs([params.read_path + '/**{R,.,_}{1,2}*{fastq,fastq.gz,fq,fq.gz}'], flat: true, checkIfExists: true) // {file -> file.name.replaceAll(/[-_].*/, '')}
 } else if (params.containsKey('reads') && params.reads) {
    ch_reads = Channel
-        .fromFilePairs(params.reads, flat: true, checkIfExists: true) {file -> file.name.replaceAll(/[-_].*/, '')}
+        .fromFilePairs(params.reads, flat: true, checkIfExists: true) //{file -> file.name.replaceAll(/[-_].*/, '')}
 } else {
    exit 1, "[Pipeline error] Please specify your input using `--read_path` or `--reads`!\n"
 }
@@ -187,8 +187,8 @@ include { HUMANN2; HUMANN2_INDEX } from './modules/profilers_humann2' addParams(
 include { SRST2 } from './modules/profilers_srst2' addParams(outdir: "$params.outdir")
 
 // TODO: is there any elegant method to do this?
-include SPLIT_PROFILE as SPLIT_METAPHLAN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
-include SPLIT_PROFILE as SPLIT_KRAKEN2 from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
+include { SPLIT_PROFILE as SPLIT_METAPHLAN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
+include { SPLIT_PROFILE as SPLIT_KRAKEN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
    
 
 // processes
