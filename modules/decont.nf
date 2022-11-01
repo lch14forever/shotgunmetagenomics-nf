@@ -15,12 +15,13 @@ process DECONT {
 
     output:
     tuple prefix, file("${prefix}*fastpdecont_1.fastq.gz"), file("${prefix}*fastpdecont_2.fastq.gz")
-    tuple file("${prefix}.html"), file("${prefix}.json")
+    tuple file("${prefix}.html"), file("${prefix}.json"), file("${prefix}*fastpdecont_single.fastq.gz")
 
     script:
     """
     fastp -i $reads1 -I $reads2 --stdout -j ${prefix}.json -h ${prefix}.html | \\
-    bwa mem -p -t $task.cpus ${index_path}/${params.index} - | \\
-    samtools fastq -f12 -F256  -1  ${prefix}_fastpdecont_1.fastq.gz -2 ${prefix}_fastpdecont_2.fastq.gz -
+    bwa mem -k 19 -p -t $task.cpus ${index_path}/${params.index} - | \\
+    decont_filter.py | \\
+    samtools fastq -f12 -F256  -1  ${prefix}_fastpdecont_1.fastq.gz -2 ${prefix}_fastpdecont_2.fastq.gz -s ${prefix}_fastpdecont_single.fastq.gz  - 
     """
 }
