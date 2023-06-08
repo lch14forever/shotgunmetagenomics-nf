@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 """
-HUMAnN2 : HMP Unified Metabolic Analysis Network 2
+HUMAnN : HMP Unified Metabolic Analysis Network 3
 
-HUMAnN2 is a pipeline for efficiently and accurately determining 
+HUMAnN is a pipeline for efficiently and accurately determining 
 the coverage and abundance of microbial pathways in a community 
 from metagenomic data. Sequencing a metagenome typically produces millions 
 of short DNA/RNA reads.
 
 Dependencies: MetaPhlAn2, ChocoPhlAn, Bowtie2, and ( Diamond or Rapsearch2 or Usearch )
 
-To Run: humann2 -i <input.fastq> -o <output_dir>
+To Run: humann -i <input.fastq> -o <output_dir>
 
 Copyright (c) 2014 Harvard School of Public Health
 
@@ -35,11 +35,11 @@ THE SOFTWARE.
 
 import sys
     
-# Try to load one of the humann2 modules to check the installation
+# Try to load one of the humann modules to check the installation
 try:
     from . import check
 except ImportError:
-    sys.exit("CRITICAL ERROR: Unable to find the HUMAnN2 python package." +
+    sys.exit("CRITICAL ERROR: Unable to find the HUMAnN python package." +
         " Please check your install.") 
 
 # Check the python version
@@ -65,7 +65,7 @@ from .quantify import modules
 # name global logging instance
 logger=logging.getLogger(__name__)
 
-VERSION="0.11.2"
+VERSION="3.0.0"
 MAX_SIZE_DEMO_INPUT_FILE=10
 
 def parse_arguments(args):
@@ -73,247 +73,294 @@ def parse_arguments(args):
     Parse the arguments from the user
     """
     parser = argparse.ArgumentParser(
-        description= "HUMAnN2 : HMP Unified Metabolic Analysis Network 2\n",
+        description= "HUMAnN : HMP Unified Metabolic Analysis Network 3\n",
         formatter_class=argparse.RawTextHelpFormatter,
-        prog="humann2")
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="%(prog)s v"+VERSION)
-    parser.add_argument(
-        "-v","--verbose", 
-        help="additional output is printed\n", 
-        action="store_true",
-        default=config.verbose)
-    parser.add_argument(
-        "-r","--resume", 
-        help="bypass commands if the output files exist\n", 
-        action="store_true",
-        default=config.resume)
-    parser.add_argument(
-        "--bypass-prescreen", 
-        help="bypass the prescreen step and run on the full ChocoPhlAn database\n", 
-        action="store_true",
-        default=config.bypass_prescreen)
-    parser.add_argument(
-        "--bypass-nucleotide-index", 
-        help="bypass the nucleotide index step and run on the indexed ChocoPhlAn database\n", 
-        action="store_true",
-        default=config.bypass_nucleotide_index)
-    parser.add_argument(
-        "--bypass-translated-search", 
-        help="bypass the translated search step\n", 
-        action="store_true",
-        default=config.bypass_translated_search)
-    parser.add_argument(
-        "--bypass-nucleotide-search", 
-        help="bypass the nucleotide search steps\n", 
-        action="store_true",
-        default=config.bypass_nucleotide_search)
-    parser.add_argument(
+        prog="humann")
+
+    common_settings=parser.add_argument_group("[0] Common settings")
+
+    common_settings.add_argument(
         "-i", "--input", 
         help="input file of type {" +",".join(config.input_format_choices)+ "} \n[REQUIRED]", 
         metavar="<input.fastq>", 
         required=True)
-    parser.add_argument(
+    common_settings.add_argument(
         "-o", "--output", 
         help="directory to write output files\n[REQUIRED]", 
         metavar="<output>", 
         required=True)
-    parser.add_argument(
-        "--nucleotide-database",
-        help="directory containing the nucleotide database\n[DEFAULT: " 
-            + config.nucleotide_database + "]", 
-        metavar="<nucleotide_database>")
-    parser.add_argument(
-        "--annotation-gene-index",
-        help="the index of the gene in the sequence annotation\n[DEFAULT: " 
-            + ",".join(str(i) for i in config.chocophlan_gene_indexes) + "]", 
-        metavar="<"+",".join(str(i) for i in config.chocophlan_gene_indexes)+">",
-        default=",".join(str(i) for i in config.chocophlan_gene_indexes))
-    parser.add_argument(
-        "--protein-database",
-        help="directory containing the protein database\n[DEFAULT: " 
-            + config.protein_database + "]", 
-        metavar="<protein_database>")
-    parser.add_argument(
-        "--evalue", 
-        help="the evalue threshold to use with the translated search\n[DEFAULT: " + str(config.evalue_threshold) + "]", 
-        metavar="<" + str(config.evalue_threshold) + ">", 
-        type=float,
-        default=config.evalue_threshold) 
-    parser.add_argument(
-        "--search-mode",
-        help="search for uniref50 or uniref90 gene families\n" + 
-        "[DEFAULT: based on translated database selected]",
-        choices=[config.search_mode_uniref50, config.search_mode_uniref90],
-        default=None)
-    parser.add_argument(
-        "--metaphlan",
-        help="directory containing the MetaPhlAn software\n[DEFAULT: $PATH]", 
-        metavar="<metaphlan>")
-    parser.add_argument(
-        "--metaphlan-options",
-        help="options to be provided to the MetaPhlAn software\n[DEFAULT: \"" + str(" ".join(config.metaphlan_opts)) + "\"]",
-        metavar="<metaphlan_options>",
-        default=" ".join(config.metaphlan_opts))
-    parser.add_argument(
-        "--o-log", 
-        help="log file\n" + 
-        "[DEFAULT: temp/sample.log]", 
-        metavar="<sample.log>")
-    parser.add_argument(
-        "--log-level", 
-        help="level of messages to display in log\n" + 
-        "[DEFAULT: " + config.log_level + "]", 
-        default=config.log_level,
-        choices=config.log_level_choices)
-    parser.add_argument(
-        "--remove-temp-output", 
-        help="remove temp output files\n" + 
-            "[DEFAULT: temp files are not removed]", 
-        action="store_true")
-    parser.add_argument(
+    common_settings.add_argument(
         "--threads", 
         help="number of threads/processes\n[DEFAULT: " + str(config.threads) + "]", 
         metavar="<" + str(config.threads) + ">", 
         type=int,
         default=config.threads) 
-    parser.add_argument(
+    common_settings.add_argument(
+        "--version",
+        action="version",
+        version="%(prog)s v"+VERSION)
+
+    workflow_refinement=parser.add_argument_group("[1] Workflow refinement")
+
+    workflow_refinement.add_argument(
+        "-r","--resume", 
+        help="bypass commands if the output files exist\n", 
+        action="store_true",
+        default=config.resume)
+    workflow_refinement.add_argument(
+        "--bypass-nucleotide-index", 
+        help="bypass the nucleotide index step and run on the indexed ChocoPhlAn database\n", 
+        action="store_true",
+        default=config.bypass_nucleotide_index)
+    workflow_refinement.add_argument(
+        "--bypass-nucleotide-search", 
+        help="bypass the nucleotide search steps\n", 
+        action="store_true",
+        default=config.bypass_nucleotide_search)
+    workflow_refinement.add_argument(
+        "--bypass-prescreen", 
+        help="bypass the prescreen step and run on the full ChocoPhlAn database\n", 
+        action="store_true",
+        default=config.bypass_prescreen)
+    workflow_refinement.add_argument(
+        "--bypass-translated-search", 
+        help="bypass the translated search step\n", 
+        action="store_true",
+        default=config.bypass_translated_search)
+    workflow_refinement.add_argument(
+        "--taxonomic-profile", 
+        help="a taxonomic profile (the output file created by metaphlan)\n[DEFAULT: file will be created]", 
+        metavar="<taxonomic_profile.tsv>")
+    workflow_refinement.add_argument(
+        "--memory-use",
+        help="the amount of memory to use\n[DEFAULT: " +
+        config.memory_use + "]",
+        default=config.memory_use,
+        choices=config.memory_use_options)
+    workflow_refinement.add_argument(
+        "--input-format",
+        help="the format of the input file\n[DEFAULT: format identified by software]",
+        choices=config.input_format_choices)
+    workflow_refinement.add_argument(
+        "--search-mode",
+        help="search for uniref50 or uniref90 gene families\n" + 
+        "[DEFAULT: based on translated database selected]",
+        choices=[config.search_mode_uniref50, config.search_mode_uniref90],
+        default=None)
+    workflow_refinement.add_argument(
+        "-v","--verbose", 
+        help="additional output is printed\n", 
+        action="store_true",
+        default=config.verbose)
+
+    tier1_prescreen=parser.add_argument_group("[2] Configure tier 1: prescreen")
+
+    tier1_prescreen.add_argument(
+        "--metaphlan",
+        help="directory containing the MetaPhlAn software\n[DEFAULT: $PATH]", 
+        metavar="<metaphlan>")
+    tier1_prescreen.add_argument(
+        "--metaphlan-options",
+        help="options to be provided to the MetaPhlAn software\n[DEFAULT: \"" + str(" ".join(config.metaphlan_opts)) + "\"]",
+        metavar="<metaphlan_options>",
+        default=" ".join(config.metaphlan_opts))
+    tier1_prescreen.add_argument(
         "--prescreen-threshold", 
         help="minimum percentage of reads matching a species\n[DEFAULT: "
             + str(config.prescreen_threshold) + "]", 
         metavar="<" + str(config.prescreen_threshold) + ">", 
         type=float,
         default=config.prescreen_threshold) 
-    parser.add_argument(
-        "--identity-threshold", 
-        help="identity threshold for alignments\n[DEFAULT: " 
-            + str(config.identity_threshold) + "]", 
-        metavar="<" + str(config.identity_threshold) + ">", 
+
+    tier2_nucleotide_search=parser.add_argument_group("[3] Configure tier 2: nucleotide search")
+
+    tier2_nucleotide_search.add_argument(
+        "--bowtie2",
+        help="directory containing the bowtie2 executable\n[DEFAULT: $PATH]", 
+        metavar="<bowtie2>") 
+    tier2_nucleotide_search.add_argument(
+        "--bowtie-options",
+        help="options to be provided to the bowtie software\n[DEFAULT: \"" + str(" ".join(config.bowtie2_align_opts)) + "\"]",
+        metavar="<bowtie_options>",
+        default=" ".join(config.bowtie2_align_opts))
+    tier2_nucleotide_search.add_argument(
+        "--nucleotide-database",
+        help="directory containing the nucleotide database\n[DEFAULT: " 
+            + config.nucleotide_database + "]", 
+        metavar="<nucleotide_database>")
+    tier2_nucleotide_search.add_argument(
+        "--nucleotide-identity-threshold",
+        help="identity threshold for nuclotide alignments\n[DEFAULT: " + str(config.nucleotide_identity_threshold) + "]",
+        metavar="<" + str(config.nucleotide_identity_threshold) + ">",
+        type=float)
+    tier2_nucleotide_search.add_argument(
+        "--nucleotide-query-coverage-threshold", 
+        help="query coverage threshold for nucleotide alignments\n[DEFAULT: " 
+            + str(config.nucleotide_query_coverage_threshold) + "]", 
+        metavar="<" + str(config.nucleotide_query_coverage_threshold) + ">", 
         type=float,
-        default=config.identity_threshold) 
-    parser.add_argument(
-        "--translated-subject-coverage-threshold", 
-        help="subject coverage threshold for translated alignments\n[DEFAULT: " 
-            + str(config.translated_subject_coverage_threshold) + "]", 
-        metavar="<" + str(config.translated_subject_coverage_threshold) + ">", 
+        default=config.nucleotide_query_coverage_threshold)
+    tier2_nucleotide_search.add_argument(
+        "--nucleotide-subject-coverage-threshold", 
+        help="subject coverage threshold for nucleotide alignments\n[DEFAULT: " 
+            + str(config.nucleotide_subject_coverage_threshold) + "]", 
+        metavar="<" + str(config.nucleotide_subject_coverage_threshold) + ">", 
         type=float,
-        default=config.translated_subject_coverage_threshold)
-    parser.add_argument(
+        default=config.nucleotide_subject_coverage_threshold)
+
+
+    tier3_translated_search=parser.add_argument_group("[3] Configure tier 2: translated search")
+
+    tier3_translated_search.add_argument(
+        "--diamond", 
+        help="directory containing the diamond executable\n[DEFAULT: $PATH]", 
+        metavar="<diamond>")
+    tier3_translated_search.add_argument(
+        "--diamond-options",
+        help="options to be provided to the diamond software\n[DEFAULT: \"" + str(" ".join(config.diamond_opts_uniref90)) + "\"]",
+        metavar="<diamond_options>",
+        default=" ".join(config.diamond_opts_uniref90))
+    tier3_translated_search.add_argument(
+        "--evalue", 
+        help="the evalue threshold to use with the translated search\n[DEFAULT: " + str(config.evalue_threshold) + "]", 
+        metavar="<" + str(config.evalue_threshold) + ">", 
+        type=float,
+        default=config.evalue_threshold) 
+    tier3_translated_search.add_argument(
+        "--protein-database",
+        help="directory containing the protein database\n[DEFAULT: " 
+            + config.protein_database + "]", 
+        metavar="<protein_database>")
+    tier3_translated_search.add_argument(
+        "--rapsearch", 
+        help="directory containing the rapsearch executable\n[DEFAULT: $PATH]", 
+        metavar="<rapsearch>")
+    tier3_translated_search.add_argument(
+        "--translated-alignment", 
+        help="software to use for translated alignment\n[DEFAULT: " + 
+            config.translated_alignment_selected + "]", 
+        default=config.translated_alignment_selected,
+        choices=config.translated_alignment_choices)
+    tier3_translated_search.add_argument(
+        "--translated-identity-threshold", 
+        help="identity threshold for translated alignments\n[DEFAULT: " 
+            + "Tuned automatically (based on uniref mode) unless a custom value is specified]", 
+        metavar="<Automatically: 50.0 or 80.0, Custom: 0.0-100.0>", 
+        type=float,
+        dest="identity_threshold") 
+    tier3_translated_search.add_argument(
         "--translated-query-coverage-threshold", 
         help="query coverage threshold for translated alignments\n[DEFAULT: " 
             + str(config.translated_query_coverage_threshold) + "]", 
         metavar="<" + str(config.translated_query_coverage_threshold) + ">", 
         type=float,
         default=config.translated_query_coverage_threshold)
-    parser.add_argument(
-        "--bowtie2",
-        help="directory containing the bowtie2 executable\n[DEFAULT: $PATH]", 
-        metavar="<bowtie2>") 
-    parser.add_argument(
+    tier3_translated_search.add_argument(
+        "--translated-subject-coverage-threshold", 
+        help="subject coverage threshold for translated alignments\n[DEFAULT: " 
+            + str(config.translated_subject_coverage_threshold) + "]", 
+        metavar="<" + str(config.translated_subject_coverage_threshold) + ">", 
+        type=float,
+        default=config.translated_subject_coverage_threshold)
+    tier3_translated_search.add_argument(
         "--usearch", 
         help="directory containing the usearch executable\n[DEFAULT: $PATH]", 
         metavar="<usearch>")
-    parser.add_argument(
-        "--rapsearch", 
-        help="directory containing the rapsearch executable\n[DEFAULT: $PATH]", 
-        metavar="<rapsearch>")
-    parser.add_argument(
-        "--diamond", 
-        help="directory containing the diamond executable\n[DEFAULT: $PATH]", 
-        metavar="<diamond>")
-    parser.add_argument(
-        "--taxonomic-profile", 
-        help="a taxonomic profile (the output file created by metaphlan)\n[DEFAULT: file will be created]", 
-        metavar="<taxonomic_profile.tsv>")
-    parser.add_argument(
-        "--id-mapping", 
-        help="id mapping file for alignments\n[DEFAULT: alignment reference used]", 
-        metavar="<id_mapping.tsv>")
-    parser.add_argument(
-        "--translated-alignment", 
-        help="software to use for translated alignment\n[DEFAULT: " + 
-            config.translated_alignment_selected + "]", 
-        default=config.translated_alignment_selected,
-        choices=config.translated_alignment_choices)
-    parser.add_argument(
-        "--xipe",
-        help="turn on/off the xipe computation\n[DEFAULT: " +
-        config.xipe_toggle + "]",
-        default=config.xipe_toggle,
-        choices=config.toggle_choices)
-    parser.add_argument(
-        "--minpath",
-        help="turn on/off the minpath computation\n[DEFAULT: " + 
-        config.minpath_toggle + "]",
-        default=config.minpath_toggle,
-        choices=config.toggle_choices)
-    parser.add_argument(
-        "--pick-frames",
-        help="turn on/off the pick_frames computation\n[DEFAULT: " + 
-        config.pick_frames_toggle + "]",
-        default=config.pick_frames_toggle,
-        choices=config.toggle_choices)
-    parser.add_argument(
+
+
+    gene_and_pathway=parser.add_argument_group("[5] Gene and pathway quantification")
+
+    gene_and_pathway.add_argument(
         "--gap-fill",
         help="turn on/off the gap fill computation\n[DEFAULT: " + 
         config.gap_fill_toggle + "]",
         default=config.gap_fill_toggle,
         choices=config.toggle_choices)
-    parser.add_argument(
+    gene_and_pathway.add_argument(
+        "--minpath",
+        help="turn on/off the minpath computation\n[DEFAULT: " + 
+        config.minpath_toggle + "]",
+        default=config.minpath_toggle,
+        choices=config.toggle_choices)
+    gene_and_pathway.add_argument(
+        "--pathways",
+        help="the database to use for pathway computations\n[DEFAULT: " +
+        config.pathways_database + "]",
+        default=config.pathways_database,
+        choices=config.pathways_database_choices)
+    gene_and_pathway.add_argument(
+        "--pathways-database",
+        help="mapping file (or files, at most two in a comma-delimited list) to use for pathway computations\n[DEFAULT: " +
+        config.pathways_database + " database ]",
+        metavar=("<pathways_database.tsv>"),
+        nargs=1)
+    gene_and_pathway.add_argument(
+        "--xipe",
+        help="turn on/off the xipe computation\n[DEFAULT: " +
+        config.xipe_toggle + "]",
+        default=config.xipe_toggle,
+        choices=config.toggle_choices)
+    gene_and_pathway.add_argument(
+        "--annotation-gene-index",
+        help="the index of the gene in the sequence annotation\n[DEFAULT: " 
+            + ",".join(str(i) for i in config.chocophlan_gene_indexes) + "]", 
+        metavar="<"+",".join(str(i) for i in config.chocophlan_gene_indexes)+">",
+        default=",".join(str(i) for i in config.chocophlan_gene_indexes))
+    gene_and_pathway.add_argument(
+        "--id-mapping", 
+        help="id mapping file for alignments\n[DEFAULT: alignment reference used]", 
+        metavar="<id_mapping.tsv>")
+
+
+    more_output_config=parser.add_argument_group("[6] More output configuration")
+
+    more_output_config.add_argument(
+        "--remove-temp-output", 
+        help="remove temp output files\n" + 
+            "[DEFAULT: temp files are not removed]", 
+        action="store_true")
+    more_output_config.add_argument(
+        "--log-level", 
+        help="level of messages to display in log\n" + 
+        "[DEFAULT: " + config.log_level + "]", 
+        default=config.log_level,
+        choices=config.log_level_choices)
+    more_output_config.add_argument(
+        "--o-log", 
+        help="log file\n" + 
+        "[DEFAULT: temp/sample.log]", 
+        metavar="<sample.log>")
+    more_output_config.add_argument(
+        "--output-basename",
+        help="the basename for the output files\n[DEFAULT: " +
+        "input file basename]",
+        default=config.file_basename,
+        metavar="<sample_name>")
+    more_output_config.add_argument(
         "--output-format",
         help="the format of the output files\n[DEFAULT: " +
         config.output_format + "]",
         default=config.output_format,
         choices=config.output_format_choices)
-    parser.add_argument(
+    more_output_config.add_argument(
         "--output-max-decimals",
         help="the number of decimals to output\n[DEFAULT: " +
         str(config.output_max_decimals) + "]",
         metavar="<" + str(config.output_max_decimals) + ">", 
         type=int,
         default=config.output_max_decimals)
-    parser.add_argument(
-        "--output-basename",
-        help="the basename for the output files\n[DEFAULT: " +
-        "input file basename]",
-        default=config.file_basename,
-        metavar="<sample_name>")
-    parser.add_argument(
-        "--remove-stratified-output", 
-        help="remove stratification from output\n" + 
-            "[DEFAULT: output is stratified]", 
-        action="store_true",
-        default=config.remove_stratified_output)
-    parser.add_argument(
+    more_output_config.add_argument(
         "--remove-column-description-output", 
         help="remove the description in the output column\n" + 
             "[DEFAULT: output column includes description]", 
         action="store_true",
         default=config.remove_column_description_output)
-    parser.add_argument(
-        "--input-format",
-        help="the format of the input file\n[DEFAULT: format identified by software]",
-        choices=config.input_format_choices)
-    parser.add_argument(
-        "--pathways-database",
-        help="mapping file (or files, at most two in a comma-delimited list) to use for pathway computations\n[DEFAULT: " +
-        config.pathways_database + " database ]",
-        metavar=("<pathways_database.tsv>"),
-        nargs=1)
-    parser.add_argument(
-        "--pathways",
-        help="the database to use for pathway computations\n[DEFAULT: " +
-        config.pathways_database + "]",
-        default=config.pathways_database,
-        choices=config.pathways_database_choices)
-    parser.add_argument(
-        "--memory-use",
-        help="the amount of memory to use\n[DEFAULT: " +
-        config.memory_use + "]",
-        default=config.memory_use,
-        choices=config.memory_use_options)
+    more_output_config.add_argument(
+        "--remove-stratified-output", 
+        help="remove stratification from output\n" + 
+            "[DEFAULT: output is stratified]", 
+        action="store_true",
+        default=config.remove_stratified_output)
 
     return parser.parse_args()
 	 
@@ -345,6 +392,14 @@ def update_configuration(args):
     # Set the metaphlan options, removing any extra spaces
     if args.metaphlan_options:
         config.metaphlan_opts=list(filter(None,args.metaphlan_options.split(" ")))
+
+    # check for custom diamond options
+    if args.diamond_options and args.diamond_options != " ".join(config.diamond_opts_uniref90):
+        config.diamond_options_custom = True
+        config.diamond_opts=list(filter(None,args.diamond_options.split(" ")))
+
+    if args.bowtie_options:
+        config.bowtie2_align_opts=list(filter(None,args.bowtie_options.split(" ")))
  
     # Set the pathways database selection
     if args.pathways == "metacyc":
@@ -396,11 +451,9 @@ def update_configuration(args):
         
     # if set, update the config run mode to bypass translated search step
     # set the pick_frames toggle based on the bypass
+    config.pick_frames_toggle="off"
     if args.bypass_translated_search:
         config.bypass_translated_search=True
-        config.pick_frames_toggle="off"
-    else:
-        config.pick_frames_toggle=args.pick_frames
         
     # if set, update the config run mode to bypass nucleotide search steps
     if args.bypass_nucleotide_search:
@@ -411,7 +464,9 @@ def update_configuration(args):
     # Update thresholds
     config.prescreen_threshold=args.prescreen_threshold
     config.translated_subject_coverage_threshold=args.translated_subject_coverage_threshold
+    config.nucleotide_subject_coverage_threshold=args.nucleotide_subject_coverage_threshold
     config.translated_query_coverage_threshold=args.translated_query_coverage_threshold
+    config.nucleotide_query_coverage_threshold=args.nucleotide_query_coverage_threshold
     
     # Update the max decimals output
     config.output_max_decimals=args.output_max_decimals
@@ -493,7 +548,7 @@ def update_configuration(args):
 
     # set the location of the temp directory
     if not args.remove_temp_output:
-        config.temp_dir=os.path.join(output_dir,config.file_basename+"_humann2_temp")
+        config.temp_dir=os.path.join(output_dir,config.file_basename+"_humann_temp")
         if not os.path.isdir(config.temp_dir):
             try:
                 os.mkdir(config.temp_dir)
@@ -501,7 +556,7 @@ def update_configuration(args):
                 sys.exit("Unable to create temp directory: " + config.temp_dir)
     else:
         config.temp_dir=tempfile.mkdtemp( 
-            prefix=config.file_basename+'_humann2_temp_',dir=output_dir)
+            prefix=config.file_basename+'_humann_temp_',dir=output_dir)
         
     # create the unnamed temp directory
     config.unnamed_temp_dir=tempfile.mkdtemp(dir=config.temp_dir)
@@ -518,7 +573,7 @@ def update_configuration(args):
         level=getattr(logging,args.log_level), filemode='w', datefmt='%m/%d/%Y %I:%M:%S %p')
     
     # write the version of the software to the log
-    logger.info("Running humann2 v"+VERSION)
+    logger.info("Running humann v"+VERSION)
     
     # write the location of the output files to the log
     logger.info("Output files will be written to: " + output_dir)
@@ -668,6 +723,10 @@ def check_requirements(args):
                 # expect most of the file names to be of the format g__*s__*
                 if re.search("^[g__][s__]",file): 
                     valid_format_count+=1
+                if not config.metaphlan_3p0_db_matching_uniref in file:
+                    sys.exit("\n\nCRITICAL ERROR: The directory provided for ChocoPhlAn contains files ( "+file+" )"+\
+                        " that are not of the expected version. Please install the latest version"+\
+                        " of the database: "+config.metaphlan_3p0_db_matching_uniref)
             if valid_format_count == 0:
                 sys.exit("CRITICAL ERROR: The directory provided for ChocoPhlAn does not "
                     + "contain files of the expected format (ie \'^[g__][s__]\').")
@@ -683,18 +742,21 @@ def check_requirements(args):
                 if input_file_size > MAX_SIZE_DEMO_INPUT_FILE:
                     sys.exit("ERROR: You are using the demo ChocoPhlAn database with "
                         + "a non-demo input file. If you have not already done so, please "
-                        + "run humann2_databases to download the full ChocoPhlAn database. "
+                        + "run humann_databases to download the full ChocoPhlAn database. "
                         + "If you have downloaded the full database, use the option "
                         + "--nucleotide-database to provide the location. "
-                        + "You can also run humann2_config to update the default "
+                        + "You can also run humann_config to update the default "
                         + "database location. For additional information, please "
-                        + "see the HUMAnN2 User Manual.")
+                        + "see the HUMAnN User Manual.")
                 
         # Check that the metaphlan2 executable can be found
         if not config.bypass_prescreen and not config.bypass_nucleotide_index:
-            if not utilities.find_exe_in_path("metaphlan2.py"): 
-                sys.exit("CRITICAL ERROR: The metaphlan2.py executable can not be found. "  
+            if not utilities.find_exe_in_path("metaphlan"): 
+                sys.exit("CRITICAL ERROR: The metaphlan executable can not be found. "  
                     "Please check the install.")
+
+            # Check the metaphlan2 version
+            utilities.check_software_version("metaphlan",config.metaphlan_version)
 
         # Check that the bowtie2 executable can be found
         if not config.bypass_nucleotide_search:
@@ -703,7 +765,7 @@ def check_requirements(args):
                     "Please check the install.")
                 
             # Check the bowtie2 version
-            utilities.check_software_version("bowtie2", config.bowtie2_version)
+            utilities.check_software_version("bowtie2", config.bowtie2_version, warning=True)
  
         if not config.bypass_translated_search:
             # Check that the protein database directory exists
@@ -729,6 +791,11 @@ def check_requirements(args):
             database_files=os.listdir(config.protein_database)
             valid_format_database_files=[]
             for file in database_files:
+                if not config.metaphlan_3p0_db_matching_uniref in file:
+                    sys.exit("\n\nCRITICAL ERROR: The directory provided for the translated database contains files ( "+file+" )"+\
+                        " that are not of the expected version. Please install the latest version"+\
+                        " of the database: "+config.metaphlan_3p0_db_matching_uniref)
+                
                 if file.endswith(expected_database_extension):
                     # if rapsearch check for the second database file
                     if config.translated_alignment_selected == "rapsearch":
@@ -767,12 +834,12 @@ def check_requirements(args):
                 if input_file_size > MAX_SIZE_DEMO_INPUT_FILE:
                     sys.exit("ERROR: You are using the demo UniRef database with "
                         + "a non-demo input file. If you have not already done so, please "
-                        + "run humann2_databases to download the full UniRef database. "
+                        + "run humann_databases to download the full UniRef database. "
                         + "If you have downloaded the full database, use the option "
                         + "--protein-database to provide the location. "
-                        + "You can also run humann2_config to update the default "
+                        + "You can also run humann_config to update the default "
                         + "database location. For additional information, please "
-                        + "see the HUMAnN2 User Manual.")
+                        + "see the HUMAnN User Manual.")
 
             # Check that the translated alignment executable can be found
             if not utilities.find_exe_in_path(config.translated_alignment_selected):
@@ -801,7 +868,7 @@ def check_requirements(args):
     # set the values based on the search mode
     if config.search_mode == config.search_mode_uniref90:
         # only change identity threshold to default if user has not provided a specific setting
-        if config.identity_threshold == args.identity_threshold:  
+        if args.identity_threshold is None:  
             config.identity_threshold = config.identity_threshold_uniref90_mode
         else:
             config.identity_threshold = args.identity_threshold
@@ -812,11 +879,12 @@ def check_requirements(args):
         else:
             config.chocophlan_gene_indexes = chocophlan_gene_indexes
                 
-        # set the diamond options
-        config.diamond_opts = config.diamond_opts_uniref90
+        # set the diamond options if custom options were not provided
+        if not config.diamond_options_custom:
+            config.diamond_opts = config.diamond_opts_uniref90
     else:
         # only change identity threshold to default if user has not provided a specific setting
-        if config.identity_threshold == args.identity_threshold:  
+        if args.identity_threshold is None:  
             config.identity_threshold = config.identity_threshold_uniref50_mode
         else:
             config.identity_threshold = args.identity_threshold                
@@ -827,8 +895,9 @@ def check_requirements(args):
         else:
             config.chocophlan_gene_indexes = chocophlan_gene_indexes
             
-        # set the diamond options
-        config.diamond_opts = config.diamond_opts_uniref50
+        # set the diamond options if custom options were not provided
+        if not config.diamond_options_custom:
+            config.diamond_opts = config.diamond_opts_uniref50
 
               
 def timestamp_message(task, start_time):
@@ -917,7 +986,6 @@ def main():
                 start_time=timestamp_message("database index",start_time)
             else:
                 nucleotide_index_file = nucleotide.find_index(config.nucleotide_database)
-            print(nucleotide_index_file)
                 
             nucleotide_alignment_file = nucleotide.alignment(args.input, 
                 nucleotide_index_file)
@@ -999,8 +1067,6 @@ def main():
     
     # Process input files of sam format
     elif args.input_format in ["sam"]:
-        # Turn off frame picker if set on
-        config.pick_frames_toggle="off"
         
         # Store the sam mapping results
         message="Process the sam mapping results ..."

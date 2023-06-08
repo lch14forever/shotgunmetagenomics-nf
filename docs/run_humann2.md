@@ -74,9 +74,20 @@ rm  customized.ffn
 ```python
 	...
 	# Use the full path to the input file
-    if args.input!='-':
+    if args.input!='-': ## ADDED
         args.input=os.path.abspath(args.input)
 	...
+```
+
+```python
+    ...
+    if args.input != '-': ## ADDED
+            if not os.path.isfile(args.input):
+	                sys.exit("CRITICAL ERROR: Can not find input file selected: "+ args.input)
+
+        if not os.access(args.input, os.R_OK):
+	            sys.exit("CRITICAL ERROR: Not able to read input file selected: " + args.input)
+    ...
 ```
 
 #### search/nucleotide.py

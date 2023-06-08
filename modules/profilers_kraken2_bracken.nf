@@ -7,11 +7,11 @@ process KRAKEN2 {
 
     input:
     file index_path
-    tuple prefix, file(reads1), file(reads2)
+    tuple val(prefix), file(reads1), file(reads2)
 
     output:
-    tuple prefix, file("${prefix}.kraken2.tax")
-    tuple prefix, file("${prefix}.kraken2.report")
+    tuple val(prefix), file("${prefix}.kraken2.tax")
+    tuple val(prefix), file("${prefix}.kraken2.report")
     // file "${prefix}.kraken2.out.gz" // This is not necessary...
 
     script:
@@ -41,7 +41,7 @@ process BRACKEN {
 
     input:
     file index_path  // This must have the bracken database
-    tuple prefix, file(kraken2_report)
+    tuple val(prefix), file(kraken2_report)
     each tax
 
     output:

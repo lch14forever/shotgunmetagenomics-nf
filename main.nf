@@ -1,16 +1,16 @@
 #!/usr/bin/env nextflow
 
 // DSL 2 syntax
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 // Constants
-def profilers_expected = ['kraken2', 'metaphlan2', 'humann2', 'srst2', 'strainphlan'] as Set
+def profilers_expected = ['kraken2', 'metaphlan', 'humann', 'srst2', 'strainphlan'] as Set
 def parameters_expected = ['read_path', 'reads', 'outdir',                              // input output
                            'decont_off', 'decont_refpath', 'decont_index',              // decont
 			   'profilers',                                                 // profilers
 			   'kraken2_index',                                             // kraken2
-			   'metaphlan2_refpath', 'metaphlan2_pkl',                      // metaphlan2
-			   'humann2_nucleotide', 'humann2_protein',                     // humann2
+			   'metaphlan_refpath', 'metaphlan_pkl',                        // metaphlan3
+			   'humann_nucleotide', 'humann_protein',                       // humann3
 			   'srst2_ref',                                                 // srst2
 			   'awsqueue', 'awsregion',                                     // aws
 			   'help',                                                      // help
@@ -23,26 +23,8 @@ def parameters_expected = ['read_path', 'reads', 'outdir',                      
 params.help = false
 def helpMessage() {
     log.info"""
-    ###############################################################################
-
-          +++++++++++++++++'++++
-          ++++++++++++++++''+'''
-          ++++++++++++++'''''''+
-          ++++++++++++++''+'++++
-          ++++++++++++++''''++++
-          +++++++++++++'++''++++
-          ++++++++++++++++++++++       ++++++++:,   +++   ++++++++
-          +++++++++++++, +++++++     +++.  .'+++;  +++  :+++   '++
-          ++++++ ``'+`  ++++++++   +++'        ';  +++  +++      +
-          ++++`   +++  +++++++++  +++              +++  +++:
-          ++,  ,+++`  ++++++++++  ++;              +++    ++++
-          +, ;+++  + .++++++++++  +++     .++++++  +++       ++++
-          + `++;  ++  +++++;;+++  +++         +++  +++          '++,
-          + :;   +++, ;++; ;++++  ;++;        +++  +++           +++
-          +: ,+++++++;,;++++++++   `+++;      +++  +++  +.      ;++,
-          ++++++++++++++++++++++      ++++++++++   +++   ++++++++.
     ===============================================================================
-        CSB5 Shotgun Metagenomics Pipeline [version ${params.pipelineVersion}]
+         Shotgun Metagenomics Pipeline [version ${params.pipelineVersion}]
 
     Usage:
     The typical command for running the pipeline is as follows:
@@ -57,22 +39,22 @@ def helpMessage() {
 
     Decontamination arguments:
       --decont_off              Skip trimming and decontamination [Default: false]
-      --decont_refpath         Path to the host reference database
+      --decont_refpath          Path to the host reference database
       --decont_index            BWA index prefix for the host
 
     Profiler configuration:
-      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan2,humann2,srst2]
+      --profilers               Metagenomics profilers to run [Default: kraken2,metaphlan,humann,srst2]
 
     Kraken2 arguments:
       --kraken2_index           Path to the kraken2 database
 
-    MetaPhlAn2 arguments:
-      --metaphlan2_refpath     Path to the metaphlan2 database
-      --metaphlan2_pkl          Python pickle file for marker genes [mpa_v20_m200.pkl]
+    MetaPhlAn3 arguments:
+      --metaphlan_refpath       Path to the metaphlan3 database
+      --metaphlan_pkl           Python pickle file for marker genes [mpa_v31_CHOCOPhlAn_201901.pkl]
 
-    HUMAnN2 arguments:
-      --humann2_nucleotide      Path to humann2 chocophlan database
-      --humann2_protein         Path to humann2 protein database
+    HUMAnN3 arguments:
+      --humann_nucleotide       Path to humann3 chocophlan database
+      --humann_protein          Path to humann3 protein database
 
     SRST2 arguments:
       --srst2_ref               Fasta file used for srst2
@@ -115,6 +97,7 @@ if (params.containsKey('read_path') && params.read_path){
 } else if (params.containsKey('reads') && params.reads) {
    ch_reads = Channel
         .fromFilePairs(params.reads, flat: true, checkIfExists: true) //{file -> file.name.replaceAll(/[-_].*/, '')}
+	ch_reads.view()
 } else {
    exit 1, "[Pipeline error] Please specify your input using `--read_path` or `--reads`!\n"
 }
@@ -146,31 +129,31 @@ if (profilers.contains('kraken2')){
    ch_kraken_idx = file(params.kraken2_index)
 }
 
-// *MetaPhlAn2 specific* //
-if (profilers.contains('metaphlan2')){
-   if ( !params.containsKey('metaphlan2_refpath') ){
-       exit 1, "[Pipeline error] Please provide the metaphlan2 index path using `--metaphlan2_refpath`!\n"
+// *MetaPhlAn specific* //
+if (profilers.contains('metaphlan')){
+   if ( !params.containsKey('metaphlan_refpath') ){
+       exit 1, "[Pipeline error] Please provide the metaphlan index path using `--metaphlan_refpath`!\n"
    }
-   ch_metaphlan2_idx = file(params.metaphlan2_refpath)
+   ch_metaphlan_idx = file(params.metaphlan_refpath)
 }
 
 // *StrainPhlAn specific* //
 if (profilers.contains('strainphlan')){
-   if (!profilers.contains('metaphlan2')){
-       exit 1, "[Pipeline error] MetaPhlAn2 required (e.g. `--profilers metaphlan2,strainphlan`)!\n"
+   if (!profilers.contains('metaphlan')){
+       exit 1, "[Pipeline error] MetaPhlAn required (e.g. `--profilers metaphlan,strainphlan`)!\n"
    }
-   if (!params.containsKey('metaphlan2_pkl')){
-       exit 1, "[Pipeline error] Please provide the metaphlan2 metadata using `--metaphlan2_pkl`!\n"
+   if (!params.containsKey('metaphlan_pkl')){
+       exit 1, "[Pipeline error] Please provide the metaphlan metadata using `--metaphlan_pkl`!\n"
    }
 }
 
-// *HUMAnN2 specific* //
-if (profilers.contains('humann2')){
-   if (!profilers.contains('metaphlan2')){
-       exit 1, "[Pipeline error] MetaPhlAn2 required (e.g. `--profilers metaphlan2,humann2`)!\n"
+// *HUMAnN specific* //
+if (profilers.contains('humann')){
+   if (!profilers.contains('metaphlan')){
+       exit 1, "[Pipeline error] MetaPhlAn required (e.g. `--profilers metaphlan,humann`)!\n"
    }
-   ch_humann2_nucleotide = file(params.humann2_nucleotide)
-   ch_humann2_protein = file(params.humann2_protein)
+   ch_humann_nucleotide = file(params.humann_nucleotide)
+   ch_humann_protein = file(params.humann_protein)
 }
 
 // *SRST2 specific* //
@@ -182,12 +165,12 @@ if (profilers.contains('srst2')){
 
 include { DECONT } from './modules/decont' addParams(index: "$params.decont_index", outdir: "$params.outdir")
 include { KRAKEN2; BRACKEN } from './modules/profilers_kraken2_bracken' addParams(outdir: "$params.outdir")
-include { METAPHLAN2; SAMPLE2MARKER; STRAINPHLAN } from './modules/profilers_metaphlan2' addParams(outdir: "$params.outdir")
-include { HUMANN2; HUMANN2_INDEX } from './modules/profilers_humann2' addParams(outdir: "$params.outdir")
+include { METAPHLAN; SAMPLE2MARKER; STRAINPHLAN } from './modules/profilers_metaphlan' addParams(outdir: "$params.outdir")
+include { HUMANN; HUMANN_INDEX } from './modules/profilers_humann' addParams(outdir: "$params.outdir")
 include { SRST2 } from './modules/profilers_srst2' addParams(outdir: "$params.outdir")
 
 // TODO: is there any elegant method to do this?
-include { SPLIT_PROFILE as SPLIT_METAPHLAN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan2")
+include { SPLIT_PROFILE as SPLIT_METAPHLAN } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "metaphlan")
 include { SPLIT_PROFILE as SPLIT_KRAKEN2 } from './modules/split_tax_profile' params(outdir: "$params.outdir", profiler: "kraken2")
    
 
@@ -205,17 +188,17 @@ workflow{
         BRACKEN(ch_kraken_idx, KRAKEN2.out[1], Channel.from('s', 'g'))
         SPLIT_KRAKEN2(KRAKEN2.out[0])
     }
-    if(profilers.contains('metaphlan2')){
-        METAPHLAN2(ch_metaphlan2_idx, ch_reads_qc)
-        SPLIT_METAPHLAN2(METAPHLAN2.out[0])
+    if(profilers.contains('metaphlan')){
+        METAPHLAN(ch_metaphlan_idx, ch_reads_qc)
+        SPLIT_METAPHLAN(METAPHLAN.out[0])
     }
     if(profilers.contains('strainphlan')){
-	SAMPLE2MARKER(METAPHLAN2.out[1])
-	STRAINPHLAN(ch_metaphlan2_idx, SAMPLE2MARKER.out.collect())
+	SAMPLE2MARKER(METAPHLAN.out[1])
+	STRAINPHLAN(ch_metaphlan_idx, SAMPLE2MARKER.out.collect())
     }
-    if(profilers.contains('humann2')){
-        HUMANN2_INDEX(ch_humann2_nucleotide, METAPHLAN2.out[0])
-        HUMANN2(ch_humann2_protein, ch_reads_qc.join(HUMANN2_INDEX.out))
+    if(profilers.contains('humann')){
+        HUMANN_INDEX(ch_humann_nucleotide, METAPHLAN.out[0])
+        HUMANN(ch_humann_protein, ch_reads_qc.join(HUMANN_INDEX.out))
     }
     if(profilers.contains('srst2')){
         SRST2(ch_srst2_ref, ch_reads_qc)

@@ -1,0 +1,12 @@
+FROM ubuntu:20.04
+MAINTAINER Chenhao Li
+
+RUN apt-get update --fix-missing
+
+ENV VERSION=3.1.1
+RUN apt-get install -y python3-pip
+RUN pip3 install humann==${VERSION}
+RUN apt-get install -y bowtie2
+
+ADD humann3_main.py /usr/local/lib/python3.8/dist-packages/humann/humann.py
+ADD humann3_search_nucleotide.py /usr/local/lib/python3.8/dist-packages/humann/search/nucleotide.py

@@ -1,0 +1,5 @@
+FROM biobakery/metaphlan:3.0.7
+
+MAINTAINER Chenhao Li
+
+RUN apt-get install -y procps

@@ -6,10 +6,10 @@ process SRST2 {
 
     input:
     file ref
-    tuple prefix, file(reads1), file(reads2)
+    tuple val(prefix), file(reads1), file(reads2)
 
     output:
-    tuple prefix, file("${prefix}.srst2*")
+    tuple val(prefix), file("${prefix}.srst2*")
     
     script:
     """

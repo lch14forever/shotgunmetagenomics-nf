@@ -6,9 +6,9 @@ process SPLIT_PROFILE {
     publishDir "${params.outdir}/split_${params.profiler}_out", mode: 'copy'
 
     input:
-    tuple prefix, file(profile)
+    tuple val(prefix), file(profile)
     output:
-    tuple prefix, file("${prefix}*.tsv")
+    tuple val(prefix), file("${prefix}*.tsv")
 
     shell:
     '''

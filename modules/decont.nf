@@ -11,10 +11,10 @@ process DECONT {
 
     input:
     file index_path
-    tuple prefix, file(reads1), file(reads2)
+    tuple val(prefix), file(reads1), file(reads2)
 
     output:
-    tuple prefix, file("${prefix}*fastpdecont_1.fastq.gz"), file("${prefix}*fastpdecont_2.fastq.gz")
+    tuple val(prefix), file("${prefix}*fastpdecont_1.fastq.gz"), file("${prefix}*fastpdecont_2.fastq.gz")
     tuple file("${prefix}.html"), file("${prefix}.json"), file("${prefix}*fastpdecont_single.fastq.gz")
 
     script:
